@@ -3,17 +3,16 @@ from pathlib import Path
 import requests
 
 from hcenc.core.app import app
+from hcenc.sage.parser import parser
 
 
 class SageClient:
-
     BASE_URL = "https://www.sagehc.eu"
 
     def __init__(self):
         self.session = requests.Session()
 
     def fetch_page(self, page: int = 1) -> Path:
-
         url = (
             f"{self.BASE_URL}/services/resp_search.aspx"
             f"?search=1"
@@ -43,6 +42,11 @@ class SageClient:
         )
 
         return file
+
+    def load_page(self, page: int = 1) -> list[dict]:
+        file = self.fetch_page(page)
+        html = file.read_text(encoding="utf-8")
+        return parser.parse(html)
 
 
 sage = SageClient()
