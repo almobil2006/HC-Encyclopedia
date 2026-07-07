@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hcenc"
+version = "2.0.0a0"
+description = "HC Encyclopedia"
+readme = "README.md"
+requires-python = ">=3.13"
+
+dependencies = [
+    "typer>=0.16",
+    "rich",
+    "requests",
+    "beautifulsoup4",
+    "sqlalchemy>=2.0",
+    "PyYAML",
+    "pytest"
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+hcenc = "hcenc.cli.app:app"
