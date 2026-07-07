@@ -3,13 +3,11 @@ import sys
 
 from rich import print
 
-from hcenc.config import config
+from hcenc.core.app import app
 
 
-def doctor():
-    """
-    Check project environment.
-    """
+def doctor() -> None:
+    """Check project environment."""
 
     print("[bold cyan]HC Encyclopedia Doctor[/bold cyan]")
     print()
@@ -19,13 +17,16 @@ def doctor():
     print()
 
     paths = {
-        "Database": config.database_dir,
-        "Profiles": config.profiles_dir,
-        "Cache": config.cache_dir,
-        "Images": config.images_dir,
+        "Database": app.config.database,
+        "Profiles": app.config.profiles,
+        "Cache": app.config.cache,
+        "Images": app.config.images,
     }
 
     for name, path in paths.items():
-        ok = "✓" if path.exists() else "✗"
-        color = "green" if path.exists() else "red"
-        print(f"[{color}]{ok}[/{color}] {name:<10} {path}")
+        exists = path.exists()
+
+        icon = "✓" if exists else "✗"
+        color = "green" if exists else "red"
+
+        print(f"[{color}]{icon}[/{color}] {name:<10} {path}")

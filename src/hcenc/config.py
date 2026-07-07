@@ -4,21 +4,33 @@ from pathlib import Path
 
 @dataclass(frozen=True)
 class Config:
-    project_root: Path
-    database_dir: Path
-    profiles_dir: Path
-    assets_dir: Path
-    cache_dir: Path
-    images_dir: Path
+    root: Path
 
+    @property
+    def database(self) -> Path:
+        return self.root / "database"
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    @property
+    def migrations(self) -> Path:
+        return self.database / "migrations"
+
+    @property
+    def profiles(self) -> Path:
+        return self.root / "profiles"
+
+    @property
+    def assets(self) -> Path:
+        return self.root / "assets"
+
+    @property
+    def cache(self) -> Path:
+        return self.assets / "cache"
+
+    @property
+    def images(self) -> Path:
+        return self.assets / "images"
+
 
 config = Config(
-    project_root=PROJECT_ROOT,
-    database_dir=PROJECT_ROOT / "database",
-    profiles_dir=PROJECT_ROOT / "profiles",
-    assets_dir=PROJECT_ROOT / "assets",
-    cache_dir=PROJECT_ROOT / "assets" / "cache",
-    images_dir=PROJECT_ROOT / "assets" / "images",
+    root=Path.cwd(),
 )

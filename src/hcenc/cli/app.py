@@ -2,6 +2,7 @@ import typer
 
 from hcenc.cli.version import version
 from hcenc.cli.doctor import doctor
+from hcenc.cli.db import app as db_app
 
 app = typer.Typer(
     help="HC Encyclopedia",
@@ -11,6 +12,11 @@ app = typer.Typer(
 
 app.command()(version)
 app.command()(doctor)
+
+app.add_typer(
+    db_app,
+    name="db",
+)
 
 if __name__ == "__main__":
     app()
