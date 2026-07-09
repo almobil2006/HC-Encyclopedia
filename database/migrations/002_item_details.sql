@@ -1,0 +1,9 @@
+ALTER TABLE items ADD COLUMN rarity TEXT;
+ALTER TABLE items ADD COLUMN slot TEXT;
+ALTER TABLE items ADD COLUMN class_name TEXT;
+ALTER TABLE items ADD COLUMN source_url TEXT;
+ALTER TABLE items ADD COLUMN image_local TEXT;
+ALTER TABLE items ADD COLUMN description_en TEXT;
+ALTER TABLE items ADD COLUMN description_ru TEXT;
+ALTER TABLE items ADD COLUMN obtained_from TEXT;
+ALTER TABLE items ADD COLUMN last_seen TEXT;

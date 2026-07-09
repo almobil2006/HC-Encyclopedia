@@ -1,23 +1,38 @@
 import typer
 
-from hcenc.sage.client import sage
+from hcenc.db.database import database
+from hcenc.db.repository import repo
+from hcenc.sage.sync import sync
+from hcenc.sage.images import sync_images
+from hcenc.sage.details import sync_details
 
-app = typer.Typer()
+app = typer.Typer(help="Synchronization")
 
 
-@app.command("download")
-def download(page: int = 1):
+@app.command()
+def parse():
 
-    file = sage.fetch_page(page)
+    database.initialize()
 
-    typer.echo(f"Saved: {file}")
+    total = sync.sync_all()
 
-@app.command("parse")
-def parse(page: int = 1):
+    typer.echo()
 
-    items = sage.load_page(page)
+    typer.echo(f"Saved: {total}")
 
-    typer.echo(f"Items: {len(items)}")
+    typer.echo(f"Database: {repo.count_items()}")
 
-    for item in items[:5]:
-        typer.echo(item)
+
+@app.command()
+def images():
+
+    count = sync_images.sync()
+
+    typer.echo(f"Downloaded: {count}")
+
+@app.command()
+def details():
+
+    total = sync_details.sync()
+
+    typer.echo(f"Downloaded: {total}")

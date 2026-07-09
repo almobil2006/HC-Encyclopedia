@@ -1,0 +1,2 @@
+ALTER TABLE items
+ADD COLUMN gear_id INTEGER;
