@@ -55,7 +55,32 @@ class SageClient:
 
         return parser.parse(html)
 
-    def fetch_detail(self, gear_id: int) -> str:
+    def fetch_sets_page(self, page: int = 1) -> str:
+
+        url = (
+            f"{self.BASE_URL}/services/items.aspx"
+            f"?search=1"
+            f"&pagenumber={page}"
+            f"&keywords="
+            f"&filter=ALL"
+            f"&itemCase=s"
+            f"&searchcase=NAME"
+        )
+
+        response = self.session.post(
+            url,
+            headers={
+                "X-Requested-With": "XMLHttpRequest",
+            },
+            data="",
+            timeout=30,
+        )
+
+        response.raise_for_status()
+
+        return response.text
+
+    def fetch_item(self, gear_id: int) -> str:
 
         url = (
             f"{self.BASE_URL}/services/items.aspx"
@@ -63,6 +88,25 @@ class SageClient:
             f"&gearIDs={gear_id}"
             f"&throne=11"
             f"&calledFrom=gearview"
+        )
+
+        response = self.session.post(
+            url,
+            timeout=30,
+        )
+
+        response.raise_for_status()
+
+        return response.text
+
+    def fetch_set(self, set_id: int) -> str:
+
+        url = (
+            f"{self.BASE_URL}/services/items.aspx"
+            f"?search=3"
+            f"&setID={set_id}"
+            f"&throne=11"
+            f"&calledFrom=setview"
         )
 
         response = self.session.post(

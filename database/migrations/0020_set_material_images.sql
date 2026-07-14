@@ -1,0 +1,14 @@
+ALTER TABLE sets
+ADD COLUMN essence_image TEXT DEFAULT '';
+
+ALTER TABLE sets
+ADD COLUMN material1_image TEXT DEFAULT '';
+
+ALTER TABLE sets
+ADD COLUMN material2_image TEXT DEFAULT '';
+
+ALTER TABLE sets
+ADD COLUMN material3_image TEXT DEFAULT '';
+
+ALTER TABLE sets
+ADD COLUMN material4_image TEXT DEFAULT '';

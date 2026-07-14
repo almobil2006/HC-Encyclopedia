@@ -81,21 +81,10 @@ class SageParser:
             item.description_en = desc.get_text(" ", strip=True)
 
         #
-        # картинка предмета
+        # картинка
         #
 
-        img = None
-
-        for candidate in soup.select(".left-section img"):
-
-            alt = candidate.get("alt", "")
-
-            if alt.endswith("Image"):
-                img = candidate
-                break
-
-        if img is None:
-            img = soup.select_one(".left-section img")
+        img = soup.select_one(".left-section img")
 
         if img:
 
@@ -103,10 +92,11 @@ class SageParser:
 
             item.image = src
 
-            if src.startswith("/"):
-                item.source_url = "https://www.sagehc.eu" + src
-            else:
-                item.source_url = src
+            item.source_url = (
+                "https://www.sagehc.eu" + src
+                if src.startswith("/")
+                else src
+            )
 
         #
         # тип предмета
@@ -136,18 +126,63 @@ class SageParser:
                 item.type_en = "Totem"
 
         #
+        # требования
+        #
+
+        req = soup.select_one(".gear-requirements")
+
+        if req:
+            item.requirements = req.get_text(strip=True)
+
+        #
         # правая колонка
         #
 
         for p in soup.select(".runeinfo_right p"):
 
-            text = p.get_text(" ", strip=True)
+            b = p.find("b")
 
-            if text.startswith("Event:"):
-                item.event_name = text.replace("Event:", "").strip()
+            if not b:
+                continue
 
-            elif text.startswith("Event date:"):
-                item.last_seen = text.replace("Event date:", "").strip()
+            key = b.get_text(" ", strip=True).rstrip(":")
+
+            value = p.get_text(" ", strip=True).replace(b.get_text(" ", strip=True), "").strip()
+
+            if key == "User rating":
+                item.user_rating = value
+
+            elif key == "Event":
+                item.event_name = value
+
+            elif key == "Event date":
+                item.last_seen = value
+
+            elif key == "Sage bot code":
+                item.sage_bot_code = value
+
+            elif key == "First trigger":
+                item.first_trigger = value
+
+            elif key == "Cooldown":
+                item.cooldown = value
+
+            elif key == "Other locations the gear can be found":
+                item.obtained_from = value
+
+        #
+        # название комплекта
+        #
+
+        for a in soup.find_all("a"):
+
+            href = a.get("href", "")
+
+            if "set" in href.lower():
+
+                item.set_code = a.get_text(strip=True)
+
+                break
 
         return item
 

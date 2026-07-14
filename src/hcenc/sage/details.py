@@ -15,25 +15,16 @@ class DetailDownloader:
 
         for gear_id, code in repo.all_items():
 
-            file = cache / f"{code}.html"
+            html_file = cache / f"{code}.html"
 
-            #
-            # скачиваем страницу только один раз
-            #
-
-            if file.exists():
-
-                html = file.read_text(
-                    encoding="utf-8"
-                )
-
+            if html_file.exists():
+                html = html_file.read_text(encoding="utf-8")
             else:
+                print(f"{code} ({gear_id})")
 
-                print(code)
+                html = sage.fetch_item(gear_id)
 
-                html = sage.fetch_detail(gear_id)
-
-                file.write_text(
+                html_file.write_text(
                     html,
                     encoding="utf-8",
                 )
@@ -43,14 +34,18 @@ class DetailDownloader:
             if item is None:
                 continue
 
-            item = parser.parse_detail(
-                html,
-                item,
-            )
+            item = parser.parse_detail(html, item)
 
             repo.save_items([item])
 
             total += 1
+
+            #
+            # ѕоказываем, если найден комплект
+            #
+
+            if item.set_code:
+                print(f"SET: {code} -> {item.set_code}")
 
             if total % 100 == 0:
                 print(total)

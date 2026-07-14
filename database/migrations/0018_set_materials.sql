@@ -1,0 +1,14 @@
+ALTER TABLE sets
+ADD COLUMN essence_name TEXT DEFAULT '';
+
+ALTER TABLE sets
+ADD COLUMN material1_name TEXT DEFAULT '';
+
+ALTER TABLE sets
+ADD COLUMN material2_name TEXT DEFAULT '';
+
+ALTER TABLE sets
+ADD COLUMN material3_name TEXT DEFAULT '';
+
+ALTER TABLE sets
+ADD COLUMN material4_name TEXT DEFAULT '';
