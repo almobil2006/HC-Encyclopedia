@@ -6,37 +6,35 @@ from hcenc.db.engine import engine
 from hcenc.models.recommended_item import RecommendedItem
 
 
-_DELETE = text(
-    """
-    DELETE FROM recommended_items
-    WHERE set_code=:set_code
-    """
-)
-
-
 _INSERT = text(
     """
-    INSERT INTO recommended_items
+    INSERT OR REPLACE INTO recommended_items
     (
         set_code,
-        slot,
         item_code,
         item_name,
+        fighter_type,
+        rarity,
+        slot,
         item_url,
         image,
         source_url,
-        image_local
+        image_local,
+        position
     )
     VALUES
     (
         :set_code,
-        :slot,
         :item_code,
         :item_name,
+        :fighter_type,
+        :rarity,
+        :slot,
         :item_url,
         :image,
         :source_url,
-        :image_local
+        :image_local,
+        :position
     )
     """
 )
@@ -44,30 +42,60 @@ _INSERT = text(
 
 class RecommendedItemRepository:
 
-    def replace(
+    def save(
         self,
-        set_code: str,
         items: list[RecommendedItem],
     ) -> None:
+
+        if not items:
+            return
 
         with engine.begin() as conn:
 
             conn.execute(
-                _DELETE,
+                _INSERT,
+                [
+                    asdict(item)
+                    for item in items
+                ],
+            )
+
+    def by_set(
+        self,
+        set_code: str,
+    ) -> list[RecommendedItem]:
+
+        with engine.begin() as conn:
+
+            rows = conn.execute(
+                text(
+                    """
+                    SELECT
+                        set_code,
+                        item_code,
+                        item_name,
+                        fighter_type,
+                        rarity,
+                        slot,
+                        item_url,
+                        image,
+                        source_url,
+                        image_local,
+                        position
+                    FROM recommended_items
+                    WHERE set_code=:set_code
+                    ORDER BY position
+                    """
+                ),
                 {
                     "set_code": set_code,
                 },
-            )
+            ).mappings()
 
-            if items:
-
-                conn.execute(
-                    _INSERT,
-                    [
-                        asdict(item)
-                        for item in items
-                    ],
-                )
+            return [
+                RecommendedItem(**dict(row))
+                for row in rows
+            ]
 
     def all(self) -> list[RecommendedItem]:
 
@@ -77,22 +105,21 @@ class RecommendedItemRepository:
                 text(
                     """
                     SELECT
-
                         set_code,
-                        slot,
                         item_code,
                         item_name,
+                        fighter_type,
+                        rarity,
+                        slot,
                         item_url,
-
                         image,
                         source_url,
-                        image_local
-
+                        image_local,
+                        position
                     FROM recommended_items
-
                     ORDER BY
                         set_code,
-                        slot
+                        position
                     """
                 )
             ).mappings()
@@ -110,20 +137,12 @@ class RecommendedItemRepository:
                 text(
                     """
                     SELECT
-
-                        set_code,
-                        slot,
-
-                        image,
-                        source_url
-
+                        item_code,
+                        source_url,
+                        image_local
                     FROM recommended_items
-
                     WHERE source_url <> ''
-
-                    ORDER BY
-                        set_code,
-                        slot
+                    ORDER BY set_code, position
                     """
                 )
             ).mappings().all()
