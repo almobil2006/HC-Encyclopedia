@@ -1,75 +1,72 @@
 import typer
 
-from hcenc.db.database import database
-from hcenc.db.repository import repo
-
-from hcenc.sage.sync import sync
-from hcenc.sage.images import sync_images
-from hcenc.sage.details import sync_details
-
+from hcenc.sage.sync_items import sync_items
+from hcenc.sage.sync_runes import sync_runes
 from hcenc.sage.sync_sets import sync_sets
 from hcenc.sage.sync_set_details import sync_set_details
 from hcenc.sage.sync_set_images import sync_set_images
+from hcenc.sage.sync_recommended_item_images import (
+    sync_recommended_item_images,
+)
 
-app = typer.Typer(help="Synchronization")
+app = typer.Typer()
 
-@app.command()
-def parse():
 
-    database.initialize()
+@app.command("items")
+def items():
 
-    total = sync.sync_all()
+    total = sync_items.sync()
 
-    typer.echo()
-    typer.echo(f"Saved: {total}")
-    typer.echo(f"Database: {repo.count_items()}")
+    print()
 
-@app.command(name="set-images")
+    print(f"Downloaded: {total}")
+
+
+@app.command("runes")
+def runes():
+
+    total = sync_runes.sync()
+
+    print()
+
+    print(f"Downloaded: {total}")
+
+
+@app.command("sets")
+def sets():
+
+    total = sync_sets.sync()
+
+    print()
+
+    print(f"Downloaded: {total}")
+
+
+@app.command("set-details")
+def set_details():
+
+    total = sync_set_details.sync()
+
+    print()
+
+    print(f"Downloaded: {total}")
+
+
+@app.command("set-images")
 def set_images():
 
     total = sync_set_images.sync()
 
+    print()
+
     print(f"Downloaded: {total}")
 
-@app.command()
-def details():
 
-    database.initialize()
+@app.command("recommended-item-images")
+def recommended_item_images():
 
-    total = sync_details.sync()
+    total = sync_recommended_item_images.sync()
 
-    typer.echo()
-    typer.echo(f"Downloaded: {total}")
+    print()
 
-
-@app.command()
-def images():
-
-    database.initialize()
-
-    total = sync_images.sync()
-
-    typer.echo()
-    typer.echo(f"Downloaded: {total}")
-
-
-@app.command()
-def sets():
-
-    database.initialize()
-
-    total = sync_sets.sync()
-
-    typer.echo()
-    typer.echo(f"Saved sets: {total}")
-
-
-@app.command(name="set-details")
-def set_details():
-
-    database.initialize()
-
-    total = sync_set_details.sync()
-
-    typer.echo()
-    typer.echo(f"Downloaded: {total}")
+    print(f"Downloaded: {total}")

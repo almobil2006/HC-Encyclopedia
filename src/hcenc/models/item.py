@@ -8,14 +8,8 @@ class Item:
     # идентификаторы
     #
 
-    code: str
-    gear_id: int | None = None
-
-    #
-    # комплект
-    #
-
-    set_code: str = ""
+    code: str = ""
+    item_id: int | None = None
 
     #
     # названия
@@ -28,87 +22,77 @@ class Item:
     # классификация
     #
 
-    type_en: str = ""
-    type_ru: str = ""
-
     fighter_type: str = ""
-
     rarity: str = ""
-
     slot: str = ""
-
-    class_name: str = ""
+    quality: str = ""
 
     #
-    # событие
+    # уровень
     #
 
-    event_name: str = ""
-
-    obtained_from: str = ""
-
-    last_seen: str = ""
+    min_level: int | None = None
+    max_level: int | None = None
 
     #
     # изображения
     #
 
     image: str = ""
-
     source_url: str = ""
-
     image_local: str = ""
+
+    skin_image: str = ""
+    skin_source_url: str = ""
+    skin_local: str = ""
 
     #
     # описание
     #
 
     description_en: str = ""
-
     description_ru: str = ""
-
-    #
-    # игровая информация
-    #
-
-    sage_bot_code: str = ""
-
-    user_rating: str = ""
-
-    requirements: str = ""
-
-    first_trigger: str = ""
-
-    cooldown: str = ""
 
     #
     # характеристики
     #
 
     health: str = ""
-
+    damage: str = ""
     armor: str = ""
-
     magic_armor: str = ""
 
-    damage: str = ""
+    dodge: str = ""
+    critical: str = ""
+    accuracy: str = ""
 
     spell_power: str = ""
-
-    dodge: str = ""
-
-    crit: str = ""
-
-    crit_damage: str = ""
-
-    attack_speed: str = ""
-
     healing: str = ""
 
-    vampirism: str = ""
-
     #
-    # эффекты
+    # способности
     #
 
-    effects: str = ""
+    ability_name: str = ""
+    ability_description: str = ""
+
+    cooldown: str = ""
+    trigger: str = ""
+
+    #
+    # источник получения
+    #
+
+    source: str = ""
+
+    #
+    # ссылки
+    #
+
+    page_url: str = ""
+
+    #
+    # служебное
+    #
+
+    cached: bool = False

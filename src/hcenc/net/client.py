@@ -28,6 +28,10 @@ class SageClient:
 
         return response.text
 
+    #
+    # Sets
+    #
+
     def search_sets(
         self,
         page: int,
@@ -55,6 +59,30 @@ class SageClient:
                 "setId": set_id,
             }
         )
+
+    #
+    # Items
+    #
+
+    def search_items(
+        self,
+        page: int,
+    ) -> str:
+
+        return self._post(
+            {
+                "search": 1,
+                "pagenumber": page,
+                "keywords": "",
+                "filter": "ALL",
+                "itemCase": "g",
+                "searchcase": "NAME",
+            }
+        )
+
+    #
+    # Images
+    #
 
     def download(
         self,
