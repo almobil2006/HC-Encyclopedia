@@ -98,6 +98,13 @@ class Item:
     cached: bool = False
 
     #
+    # сила предмета (mg-bot)
+    #
+
+    power_min: int | None = None
+    power_max: int | None = None
+
+    #
     # инвентарь игрока
     #
 

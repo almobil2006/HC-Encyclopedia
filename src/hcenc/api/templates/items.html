@@ -38,6 +38,7 @@
             <th>Слот</th>
             <th>Редкость</th>
             <th>Уровень</th>
+            <th>Сила</th>
             <th>Код</th>
             <th>Моё</th>
         </tr>
@@ -53,6 +54,11 @@
                         {{ row.min_level }}–{{ row.max_level }}
                     {% endif %}
                 </td>
+                <td class="muted">
+                    {% if row.power_max %}
+                        {{ row.power_min }}–{{ row.power_max }}
+                    {% endif %}
+                </td>
                 <td class="muted">{{ row.code }}</td>
                 <td>
                     <form method="post" action="/items/{{ row.code }}/own">
@@ -64,7 +70,7 @@
                 </td>
             </tr>
         {% else %}
-            <tr><td colspan="8" class="muted">Ничего не найдено</td></tr>
+            <tr><td colspan="9" class="muted">Ничего не найдено</td></tr>
         {% endfor %}
     </table>
 

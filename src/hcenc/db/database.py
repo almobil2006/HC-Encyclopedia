@@ -276,6 +276,8 @@ class Database:
                 "page_url": "TEXT",
                 "cached": "INTEGER DEFAULT 0",
                 "owned": "INTEGER DEFAULT 0",
+                "power_min": "INTEGER",
+                "power_max": "INTEGER",
                 "rarity": "TEXT",
                 "slot": "TEXT",
                 "class_name": "TEXT",

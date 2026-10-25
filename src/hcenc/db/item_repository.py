@@ -58,6 +58,9 @@ _INSERT = text(
 
         cached,
 
+        power_min,
+        power_max,
+
         owned
     )
     VALUES
@@ -109,6 +112,9 @@ _INSERT = text(
         :page_url,
 
         :cached,
+
+        :power_min,
+        :power_max,
 
         :owned
     )
@@ -192,6 +198,9 @@ class ItemRepository:
 
                         cached,
 
+                        power_min,
+                        power_max,
+
                         owned
                     FROM items
                     ORDER BY
@@ -266,6 +275,9 @@ class ItemRepository:
                         page_url,
 
                         cached,
+
+                        power_min,
+                        power_max,
 
                         owned
                     FROM items
@@ -445,6 +457,9 @@ class ItemRepository:
 
                         ability_name,
 
+                        power_min,
+                        power_max,
+
                         owned
 
                     FROM items
@@ -539,6 +554,7 @@ class ItemRepository:
                 " CASE WHEN items.fighter_type"
                 " IN ('', :fighter_type)"
                 " THEN 0 ELSE 1 END,"
+                " power_max DESC NULLS LAST,"
                 " max_level DESC,"
                 " name_en"
             )
@@ -547,6 +563,7 @@ class ItemRepository:
         else:
             order = (
                 "ORDER BY"
+                " power_max DESC NULLS LAST,"
                 " max_level DESC,"
                 " name_en"
             )
@@ -569,7 +586,10 @@ class ItemRepository:
                         max_level,
                         image,
                         source_url,
-                        image_local
+                        image_local,
+
+                        power_min,
+                        power_max
                     FROM items
                     {where}
                     {order}

@@ -34,6 +34,14 @@
                         {% else %}—{% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Сила</td>
+                    <td>
+                        {% if item.power_max %}
+                            {{ item.power_min }}–{{ item.power_max }}
+                        {% else %}—{% endif %}
+                    </td>
+                </tr>
                 <tr><td>Источник</td><td>{{ item.source }}</td></tr>
                 {% if item.page_url %}
                     <tr><td>Сайт</td><td><a href="{{ item.page_url }}">открыть на sagehc.eu</a></td></tr>
