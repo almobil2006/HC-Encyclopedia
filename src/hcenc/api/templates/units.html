@@ -59,7 +59,7 @@
                     <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center">
                         {% for slot, item in entry.equipment.items() %}
                             {% if item %}
-                                <a href="/items/{{ item.code }}" title="{{ slot|ru }}: {{ item.name_en }}">
+                                <a href="/items/{{ item.code }}" title="{{ slot|ru }}: {{ item.name_ru or item.name_en }}">
                                     <img class="thumb" src="{{ image_url(item.image_local, item.source_url) }}" alt="">
                                 </a>
                             {% endif %}
