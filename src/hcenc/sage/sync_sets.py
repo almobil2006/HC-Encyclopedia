@@ -1,19 +1,24 @@
+from hcenc.db.database import database
 from hcenc.db.set_repository import set_repo
-from hcenc.sage.set_client import set_client
+from hcenc.net.client import client
+from hcenc.sage.set_parser import set_parser
 
 
 class SetSynchronizer:
 
     def sync(self) -> int:
 
-        page = 1
+        database.initialize()
+
         total = 0
+
+        page = 1
 
         while True:
 
-            print(f"Page {page}")
+            html = client.search_sets(page)
 
-            sets = set_client.load_page(page)
+            sets = set_parser.parse(html)
 
             if not sets:
                 break
@@ -22,35 +27,14 @@ class SetSynchronizer:
 
             total += len(sets)
 
-            if page >= set_client_last_page(page):
-                break
+            print(
+                f"Page {page}: "
+                f"{len(sets)} sets"
+            )
 
             page += 1
 
         return total
-
-
-def set_client_last_page(page: int) -> int:
-
-    file = set_client.fetch_page(page)
-
-    html = file.read_text(
-        encoding="utf-8"
-    )
-
-    return set_client_page_count(html)
-
-
-def set_client_page_count(html: str) -> int:
-
-    return set_client_parser().last_page(html)
-
-
-def set_client_parser():
-
-    from hcenc.sage.set_parser import set_parser
-
-    return set_parser
 
 
 sync_sets = SetSynchronizer()

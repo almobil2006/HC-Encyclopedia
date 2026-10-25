@@ -5,21 +5,21 @@ from dataclasses import dataclass
 class Item:
 
     #
-    # идентификаторы
+    # РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹
     #
 
     code: str = ""
     item_id: int | None = None
 
     #
-    # названия
+    # РЅР°Р·РІР°РЅРёСЏ
     #
 
     name_en: str = ""
     name_ru: str = ""
 
     #
-    # классификация
+    # РєР»Р°СЃСЃРёС„РёРєР°С†РёСЏ
     #
 
     fighter_type: str = ""
@@ -28,14 +28,14 @@ class Item:
     quality: str = ""
 
     #
-    # уровень
+    # СѓСЂРѕРІРµРЅСЊ
     #
 
     min_level: int | None = None
     max_level: int | None = None
 
     #
-    # изображения
+    # РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
     #
 
     image: str = ""
@@ -47,14 +47,14 @@ class Item:
     skin_local: str = ""
 
     #
-    # описание
+    # РѕРїРёСЃР°РЅРёРµ
     #
 
     description_en: str = ""
     description_ru: str = ""
 
     #
-    # характеристики
+    # С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєРё
     #
 
     health: str = ""
@@ -70,7 +70,7 @@ class Item:
     healing: str = ""
 
     #
-    # способности
+    # СЃРїРѕСЃРѕР±РЅРѕСЃС‚Рё
     #
 
     ability_name: str = ""
@@ -80,19 +80,25 @@ class Item:
     trigger: str = ""
 
     #
-    # источник получения
+    # РёСЃС‚РѕС‡РЅРёРє РїРѕР»СѓС‡РµРЅРёСЏ
     #
 
     source: str = ""
 
     #
-    # ссылки
+    # СЃСЃС‹Р»РєРё
     #
 
     page_url: str = ""
 
     #
-    # служебное
+    # СЃР»СѓР¶РµР±РЅРѕРµ
     #
 
     cached: bool = False
+
+    #
+    # РёРЅРІРµРЅС‚Р°СЂСЊ РёРіСЂРѕРєР°
+    #
+
+    owned: bool = False

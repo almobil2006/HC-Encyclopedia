@@ -2,6 +2,7 @@ import typer
 
 from hcenc.cli.version import version
 from hcenc.cli.doctor import doctor
+from hcenc.cli.serve import serve
 from hcenc.cli.db import app as db_app
 from hcenc.cli.sync import app as sync_app
 
@@ -13,6 +14,7 @@ app = typer.Typer(
 
 app.command()(version)
 app.command()(doctor)
+app.command()(serve)
 
 app.add_typer(
     db_app,

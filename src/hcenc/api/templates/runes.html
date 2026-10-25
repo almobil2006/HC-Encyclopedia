@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Руны — HC Encyclopedia{% endblock %}
+{% block content %}
+    <h1>Руны <span class="muted">({{ total }})</span></h1>
+
+    <form class="filters" method="get" action="/runes">
+        <input type="text" name="q" value="{{ q }}" placeholder="Поиск по названию или коду">
+        <select name="rune_type">
+            <option value="">Тип: любой</option>
+            {% for v in types %}
+                <option value="{{ v }}" {% if v == rune_type %}selected{% endif %}>{{ v|ru }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Найти</button>
+    </form>
+
+    <table class="list">
+        <tr>
+            <th></th>
+            <th>Название</th>
+            <th>Тип</th>
+            <th>Событие</th>
+            <th>Коллекция</th>
+            <th>Источник</th>
+            <th>Код</th>
+        </tr>
+        {% for row in rows %}
+            <tr>
+                <td><img class="thumb" src="{{ image_url(row.image_local, row.source_url) }}" alt=""></td>
+                <td><a href="/runes/{{ row.code }}">{{ row.name_en }}</a></td>
+                <td>{{ row.rune_type|ru }}</td>
+                <td class="muted">
+                    {{ row.event_name }}
+                    {% if row.event_date %} ({{ row.event_date }}){% endif %}
+                </td>
+                <td>{{ row.collection|ru }}</td>
+                <td>{{ row.source }}</td>
+                <td class="muted">{{ row.code }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="7" class="muted">Ничего не найдено</td></tr>
+        {% endfor %}
+    </table>
+
+    {% if pages > 1 %}
+        <div class="pager">
+            {% if page > 1 %}<a href="{{ page_link(request, page - 1) }}">← Назад</a>{% endif %}
+            <span>Стр. {{ page }} из {{ pages }}</span>
+            {% if page < pages %}<a href="{{ page_link(request, page + 1) }}">Вперёд →</a>{% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

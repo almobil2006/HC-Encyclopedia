@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Сеты — HC Encyclopedia{% endblock %}
+{% block content %}
+    <h1>Сеты <span class="muted">({{ total }})</span></h1>
+
+    <form class="filters" method="get" action="/sets">
+        <input type="text" name="q" value="{{ q }}" placeholder="Поиск по названию или коду">
+        <select name="fighter_type">
+            <option value="">Класс: любой</option>
+            {% for v in types %}
+                <option value="{{ v }}" {% if v == fighter_type %}selected{% endif %}>{{ v|ru }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Найти</button>
+    </form>
+
+    <div class="cards">
+        {% for row in rows %}
+            <a class="card" href="/sets/{{ row.code }}">
+                <img src="{{ image_url(row.image_local, row.source_url) }}" alt="">
+                <div class="name">{{ row.name_en }}</div>
+                <div class="sub">
+                    {% if row.fighter_type %}{{ row.fighter_type|ru }}{% endif %}
+                    {% if row.event_name %} · {{ row.event_name }}{% endif %}
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+
+    {% if pages > 1 %}
+        <div class="pager">
+            {% if page > 1 %}<a href="{{ page_link(request, page - 1) }}">← Назад</a>{% endif %}
+            <span>Стр. {{ page }} из {{ pages }}</span>
+            {% if page < pages %}<a href="{{ page_link(request, page + 1) }}">Вперёд →</a>{% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

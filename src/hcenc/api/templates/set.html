@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}{{ item.name_en }} — сет{% endblock %}
+{% block content %}
+    <a class="back" href="/sets">← К сетам</a>
+    <h1>{{ item.name_en }}</h1>
+
+    <div class="detail-grid">
+        <div class="panel" style="text-align:center">
+            <img class="big" src="{{ image_url(item.image_local, item.source_url) }}" alt="">
+        </div>
+
+        <div class="panel">
+            <table class="kv">
+                <tr><td>Код</td><td>{{ item.code }}</td></tr>
+                <tr><td>Класс</td><td>{{ item.fighter_type|ru }}</td></tr>
+                <tr><td>Событие</td><td>{{ item.event_name }}</td></tr>
+            </table>
+        </div>
+    </div>
+
+    {% if item.bonus_2 or item.bonus_4 or item.bonus_6 %}
+        <h2>Бонусы сета</h2>
+        {% if item.bonus_2 %}
+            <div class="bonus"><div class="label">2 предмета</div>{{ item.bonus_2 }}</div>
+        {% endif %}
+        {% if item.bonus_4 %}
+            <div class="bonus"><div class="label">4 предмета</div>{{ item.bonus_4 }}</div>
+        {% endif %}
+        {% if item.bonus_6 %}
+            <div class="bonus"><div class="label">6 предметов</div>{{ item.bonus_6 }}</div>
+        {% endif %}
+    {% endif %}
+
+    {% if item.substance_red_2 or item.substance_yellow_2 or item.substance_purple_2 %}
+        <h2>Субстанции</h2>
+        {% if item.substance_red_2 %}
+            <div class="bonus red"><div class="label">Красная — 2 предмета</div>{{ item.substance_red_2 }}</div>
+        {% endif %}
+        {% if item.substance_red_4 %}
+            <div class="bonus red"><div class="label">Красная — 4 предмета</div>{{ item.substance_red_4 }}</div>
+        {% endif %}
+        {% if item.substance_red_6 %}
+            <div class="bonus red"><div class="label">Красная — 6 предметов</div>{{ item.substance_red_6 }}</div>
+        {% endif %}
+        {% if item.substance_yellow_2 %}
+            <div class="bonus yellow"><div class="label">Жёлтая — 2 предмета</div>{{ item.substance_yellow_2 }}</div>
+        {% endif %}
+        {% if item.substance_yellow_4 %}
+            <div class="bonus yellow"><div class="label">Жёлтая — 4 предмета</div>{{ item.substance_yellow_4 }}</div>
+        {% endif %}
+        {% if item.substance_yellow_6 %}
+            <div class="bonus yellow"><div class="label">Жёлтая — 6 предметов</div>{{ item.substance_yellow_6 }}</div>
+        {% endif %}
+        {% if item.substance_purple_2 %}
+            <div class="bonus purple"><div class="label">Фиолетовая — 2 предмета</div>{{ item.substance_purple_2 }}</div>
+        {% endif %}
+        {% if item.substance_purple_4 %}
+            <div class="bonus purple"><div class="label">Фиолетовая — 4 предмета</div>{{ item.substance_purple_4 }}</div>
+        {% endif %}
+        {% if item.substance_purple_6 %}
+            <div class="bonus purple"><div class="label">Фиолетовая — 6 предметов</div>{{ item.substance_purple_6 }}</div>
+        {% endif %}
+    {% endif %}
+
+    {% if materials %}
+        <h2>Материалы</h2>
+        <div class="mats">
+            {% for mat in materials %}
+                <div class="mat">
+                    <img src="{{ image_url('', mat.image) }}" alt="">
+                    {{ mat.name }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if recommended %}
+        <h2>Рекомендуемые предметы</h2>
+        <table class="list">
+            <tr><th></th><th>Название</th><th>Слот</th></tr>
+            {% for rec in recommended %}
+                <tr>
+                    <td><img class="thumb" src="{{ image_url(rec.image_local, rec.source_url) }}" alt=""></td>
+                    <td>
+                        {% if rec.item_url %}<a href="{{ rec.item_url }}">{{ rec.item_name }}</a>
+                        {% else %}{{ rec.item_name }}{% endif %}
+                    </td>
+                    <td>{{ rec.slot }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+{% endblock %}

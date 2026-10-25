@@ -265,4 +265,81 @@ class SetRepository:
             ).mappings().all()
 
 
+    def page(
+        self,
+        q: str = "",
+        fighter_type: str = "",
+        page: int = 1,
+        size: int = 24,
+    ) -> tuple[list[Set], int]:
+
+        conditions = []
+        params: dict = {}
+
+        if q:
+            conditions.append(
+                "(name_en LIKE :q"
+                " OR name_ru LIKE :q"
+                " OR code LIKE :q)"
+            )
+            params["q"] = f"%{q}%"
+
+        if fighter_type:
+            conditions.append("fighter_type = :fighter_type")
+            params["fighter_type"] = fighter_type
+
+        where = (
+            "WHERE " + " AND ".join(conditions)
+            if conditions
+            else ""
+        )
+
+        with engine.begin() as conn:
+
+            total = conn.execute(
+                text(
+                    f"""
+                    SELECT COUNT(*)
+                    FROM sets
+                    {where}
+                    """
+                ),
+                params,
+            ).scalar_one()
+
+            rows = conn.execute(
+                text(
+                    f"""
+                    SELECT
+                        code,
+                        set_id,
+                        name_en,
+                        name_ru,
+                        fighter_type,
+                        event_name,
+                        image,
+                        source_url,
+                        image_local
+                    FROM sets
+                    {where}
+                    ORDER BY
+                        set_id DESC
+                    LIMIT :limit OFFSET :offset
+                    """
+                ),
+                {
+                    **params,
+                    "limit": size,
+                    "offset": (page - 1) * size,
+                },
+            ).mappings()
+
+            sets = [
+                Set(**dict(row))
+                for row in rows
+            ]
+
+        return sets, total
+
+
 set_repo = SetRepository()

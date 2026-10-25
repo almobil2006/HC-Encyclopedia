@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Отряд — HC Энциклопедия{% endblock %}
+{% block content %}
+    <h1>Мой отряд</h1>
+    <p class="muted">Отметьте предметы «в наличии» в <a href="/items">каталоге</a>, затем собирайте юнитов из имеющегося.</p>
+
+    <div class="panel" style="margin-bottom: 20px">
+        <h2 style="margin-top:0">Добавить юнита</h2>
+        <form class="filters" method="post" action="/units">
+            <input type="text" name="name" placeholder="Имя (Робин Бэд, Мракула…)" required>
+            <select name="fighter_type">
+                <option value="">Класс</option>
+                <option value="Tank">Танк</option>
+                <option value="Mage">Маг</option>
+                <option value="Archer">Лучник</option>
+            </select>
+            <input type="number" name="level" min="1" max="100" placeholder="Уровень" style="min-width:110px">
+            <button type="submit">Добавить</button>
+        </form>
+    </div>
+
+    {% if units %}
+        <div class="cards" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr))">
+            {% for entry in units %}
+                <div class="card">
+                    <div class="name">
+                        <a href="/units/{{ entry.unit.id }}">{{ entry.unit.name }}</a>
+                    </div>
+                    <div class="sub">
+                        {% if entry.unit.fighter_type %}{{ entry.unit.fighter_type|ru }}{% endif %}
+                        {% if entry.unit.level %} · ур. {{ entry.unit.level }}{% endif %}
+                        {% if entry.unit.set_code %}
+                            · сет: {{ set_names.get(entry.unit.set_code, entry.unit.set_code) }}
+                        {% endif %}
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center">
+                        {% for slot, item in entry.equipment.items() %}
+                            {% if item %}
+                                <a href="/items/{{ item.code }}" title="{{ slot|ru }}: {{ item.name_en }}">
+                                    <img class="thumb" src="{{ image_url(item.image_local, item.source_url) }}" alt="">
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="sub">
+                        {{ entry.equipment.values() | selectattr("name_en") | list | length }} из {{ slots | length }} слотов занято
+                    </div>
+                    <form method="post" action="/units/{{ entry.unit.id }}/delete"
+                          onsubmit="return confirm('Удалить юнита?')">
+                        <button type="submit" class="muted"
+                                style="background:none;border:none;color:#9aa0ae;cursor:pointer;font-size:12px">
+                            удалить
+                        </button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="muted">Юнитов пока нет — добавьте первого выше.</p>
+    {% endif %}
+{% endblock %}

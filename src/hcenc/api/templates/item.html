@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ item.name_en }} — предмет{% endblock %}
+{% block content %}
+    <a class="back" href="/items">← К предметам</a>
+    <h1>{{ item.name_en }}
+        {% if item.owned %}<span class="badge" style="color:#5ba861;border-color:#5ba861">моё</span>{% endif %}
+    </h1>
+
+    <form method="post" action="/items/{{ item.code }}/own" style="margin-bottom:16px">
+        <button type="submit" style="background:var(--accent);color:#1b1b1b;font-weight:600;border:none;border-radius:6px;padding:7px 18px;cursor:pointer">
+            {% if item.owned %}Убрать из «моих»{% else %}У меня есть{% endif %}
+        </button>
+    </form>
+
+    <div class="detail-grid">
+        <div class="panel" style="text-align:center">
+            <img class="big" src="{{ image_url(item.image_local, item.source_url) }}" alt="">
+        </div>
+
+        <div class="panel">
+            <table class="kv">
+                <tr><td>Код</td><td>{{ item.code }}</td></tr>
+                <tr><td>Класс</td><td>{{ item.fighter_type|ru }}</td></tr>
+                <tr><td>Слот</td><td>{{ item.slot|ru }}</td></tr>
+                <tr><td>Редкость</td><td>{{ item.rarity }}</td></tr>
+                <tr>
+                    <td>Уровень</td>
+                    <td>
+                        {% if item.min_level or item.max_level %}
+                            {{ item.min_level }}–{{ item.max_level }}
+                        {% else %}—{% endif %}
+                    </td>
+                </tr>
+                <tr><td>Источник</td><td>{{ item.source }}</td></tr>
+                {% if item.page_url %}
+                    <tr><td>Сайт</td><td><a href="{{ item.page_url }}">открыть на sagehc.eu</a></td></tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+
+    {% if item.description_en %}
+        <h2>Способность</h2>
+        <div class="bonus">{{ item.description_en }}</div>
+    {% endif %}
+{% endblock %}

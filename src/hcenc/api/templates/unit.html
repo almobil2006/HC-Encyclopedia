@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}{{ unit.name }} — юнит{% endblock %}
+{% block content %}
+    <a class="back" href="/units">← К отряду</a>
+    <h1>{{ unit.name }}
+        <span class="muted" style="font-size:16px">
+            {% if unit.fighter_type %}· {{ unit.fighter_type|ru }}{% endif %}
+            {% if unit.level %}· уровень {{ unit.level }}{% endif %}
+        </span>
+    </h1>
+
+    <div class="panel" style="margin-bottom: 20px">
+        <h2 style="margin-top:0">Сет юнита</h2>
+        <form method="post" action="/units/{{ unit.id }}/set" class="filters" style="margin:0">
+            <select name="set_code">
+                <option value="">— без сета —</option>
+                {% for s in sets %}
+                    <option value="{{ s.code }}" {% if unit.set_code == s.code %}selected{% endif %}>
+                        {{ s.name_en }}{% if s.fighter_type %} ({{ s.fighter_type|ru }}){% endif %}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit">Сохранить</button>
+        </form>
+
+        {% if chosen_set %}
+            <div style="margin-top:14px; display:flex; gap:16px; align-items:flex-start">
+                <img class="thumb" style="width:72px;height:72px"
+                     src="{{ image_url(chosen_set.image_local, chosen_set.source_url) }}" alt="">
+                <div style="flex:1">
+                    <div><a href="/sets/{{ chosen_set.code }}"><b>{{ chosen_set.name_en }}</b></a>
+                        {% if chosen_set.fighter_type %}<span class="muted">· {{ chosen_set.fighter_type|ru }}</span>{% endif %}
+                    </div>
+                    {% if chosen_set.bonus_2 %}
+                        <div class="bonus" style="margin-top:8px"><div class="label">2 предмета</div>{{ chosen_set.bonus_2 }}</div>
+                    {% endif %}
+                    {% if chosen_set.bonus_4 %}
+                        <div class="bonus"><div class="label">4 предмета</div>{{ chosen_set.bonus_4 }}</div>
+                    {% endif %}
+                    {% if chosen_set.bonus_6 %}
+                        <div class="bonus"><div class="label">6 предметов</div>{{ chosen_set.bonus_6 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <table class="list">
+        <tr>
+            <th></th>
+            <th>Слот</th>
+            <th>Надето</th>
+            <th>Выбрать из имеющихся</th>
+            <th></th>
+        </tr>
+        {% for slot in slots %}
+            {% set equipped = equipment[slot] %}
+            {% set options = choices[slot] %}
+            <tr>
+                <td>
+                    {% if equipped %}
+                        <img class="thumb" src="{{ image_url(equipped.image_local, equipped.source_url) }}" alt="">
+                    {% endif %}
+                </td>
+                <td>{{ slot|ru }}</td>
+                <td>
+                    {% if equipped %}
+                        <a href="/items/{{ equipped.code }}">{{ equipped.name_en }}</a>
+                    {% else %}
+                        <span class="muted">— пусто —</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="post" action="/units/{{ unit.id }}/slot" class="filters" style="margin:0">
+                        <input type="hidden" name="slot" value="{{ slot }}">
+                        <select name="code">
+                            <option value="">— не выбрано —</option>
+                            {% for option in options %}
+                                <option value="{{ option.code }}" {% if equipped and equipped.code == option.code %}selected{% endif %}>
+                                    {{ option.name_en }}
+                                    {% if option.max_level %} ({{ option.max_level }}){% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit">Сохранить</button>
+                    </form>
+                </td>
+                <td>
+                    {% if equipped %}
+                        <form method="post" action="/units/{{ unit.id }}/slot">
+                            <input type="hidden" name="slot" value="{{ slot }}">
+                            <input type="hidden" name="code" value="">
+                            <button type="submit" class="muted"
+                                    style="background:none;border:none;color:#9aa0ae;cursor:pointer">
+                                снять
+                            </button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <p class="muted">
+        В списке — только предметы, отмеченные «в наличии».
+        {% if unit.fighter_type %}Оружие показано с учётом класса юнита.{% endif %}
+        Отметить предметы можно в <a href="/items">каталоге</a>.
+    </p>
+{% endblock %}

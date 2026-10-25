@@ -48,6 +48,20 @@ class SageClient:
             }
         )
 
+    def get_item_detail(
+        self,
+        gear_id: int,
+    ) -> str:
+
+        return self._post(
+            {
+                "search": 2,
+                "gearIDs": gear_id,
+                "throne": 11,
+                "calledFrom": "gearview",
+            }
+        )
+
     def get_set_detail(
         self,
         set_id: int,
@@ -77,6 +91,39 @@ class SageClient:
                 "filter": "ALL",
                 "itemCase": "g",
                 "searchcase": "NAME",
+            }
+        )
+
+    #
+    # Runes
+    #
+
+    def search_runes(
+        self,
+        page: int,
+    ) -> str:
+
+        return self._post(
+            {
+                "search": 1,
+                "pagenumber": page,
+                "keywords": "",
+                "filter": "ALL",
+                "itemCase": "r",
+                "searchcase": "NAME",
+            }
+        )
+
+    def get_rune_detail(
+        self,
+        rune_id: int,
+    ) -> str:
+
+        return self._post(
+            {
+                "search": 3,
+                "runeID": rune_id,
+                "throne": 11,
             }
         )
 

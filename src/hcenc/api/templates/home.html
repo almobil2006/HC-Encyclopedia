@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}HC Encyclopedia — главная{% endblock %}
+{% block content %}
+    <h1>Энциклопедия Hustle Castle</h1>
+    <p class="muted">Локальная копия базы SageHC: предметы, сеты и руны с возможностью поиска и фильтров.</p>
+
+    <div class="stat-cards">
+        <a class="stat-card" href="/items">
+            <div class="num">{{ stats.items }}</div>
+            <div class="label">Предметы</div>
+        </a>
+        <a class="stat-card" href="/sets">
+            <div class="num">{{ stats.sets }}</div>
+            <div class="label">Сеты</div>
+        </a>
+        <a class="stat-card" href="/runes">
+            <div class="num">{{ stats.runes }}</div>
+            <div class="label">Руны</div>
+        </a>
+        <a class="stat-card" href="/items?owned=1">
+            <div class="num">{{ stats.owned }}</div>
+            <div class="label">Мои предметы</div>
+        </a>
+        <a class="stat-card" href="/units">
+            <div class="num">{{ stats.units }}</div>
+            <div class="label">Юниты</div>
+        </a>
+    </div>
+
+    <h2>Обновление данных</h2>
+    <div class="panel">
+        <p style="margin:0 0 8px">Чтобы обновить локальную базу с сайта, выполните из корня проекта:</p>
+        <pre style="margin:0">hcenc sync items
+hcenc sync item-details
+hcenc sync sets
+hcenc sync set-details
+hcenc sync runes
+hcenc sync rune-details</pre>
+    </div>
+{% endblock %}

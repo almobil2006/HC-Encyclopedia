@@ -72,7 +72,7 @@ class SageParser:
         soup = BeautifulSoup(html, "html.parser")
 
         #
-        # описание
+        # РѕРїРёСЃР°РЅРёРµ
         #
 
         desc = soup.select_one(".card-third p")
@@ -81,7 +81,7 @@ class SageParser:
             item.description_en = desc.get_text(" ", strip=True)
 
         #
-        # картинка
+        # РєР°СЂС‚РёРЅРєР°
         #
 
         img = soup.select_one(".left-section img")
@@ -99,7 +99,7 @@ class SageParser:
             )
 
         #
-        # тип предмета
+        # С‚РёРї РїСЂРµРґРјРµС‚Р°
         #
 
         icon = soup.select_one(".right-section img")
@@ -126,7 +126,7 @@ class SageParser:
                 item.type_en = "Totem"
 
         #
-        # требования
+        # С‚СЂРµР±РѕРІР°РЅРёСЏ
         #
 
         req = soup.select_one(".gear-requirements")
@@ -135,7 +135,7 @@ class SageParser:
             item.requirements = req.get_text(strip=True)
 
         #
-        # правая колонка
+        # РїСЂР°РІР°СЏ РєРѕР»РѕРЅРєР°
         #
 
         for p in soup.select(".runeinfo_right p"):
@@ -171,7 +171,7 @@ class SageParser:
                 item.obtained_from = value
 
         #
-        # название комплекта
+        # РЅР°Р·РІР°РЅРёРµ РєРѕРјРїР»РµРєС‚Р°
         #
 
         for a in soup.find_all("a"):

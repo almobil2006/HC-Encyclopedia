@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Предметы — HC Encyclopedia{% endblock %}
+{% block content %}
+    <h1>Предметы <span class="muted">({{ total }})</span></h1>
+
+    <form class="filters" method="get" action="/items">
+        <input type="text" name="q" value="{{ q }}" placeholder="Поиск по названию или коду">
+        <select name="fighter_type">
+            <option value="">Класс: любой</option>
+            {% for v in facets.fighter_type %}
+                <option value="{{ v }}" {% if v == fighter_type %}selected{% endif %}>{{ v|ru }}</option>
+            {% endfor %}
+        </select>
+        <select name="slot">
+            <option value="">Слот: любой</option>
+            {% for v in facets.slot %}
+                <option value="{{ v }}" {% if v == slot %}selected{% endif %}>{{ v|ru }}</option>
+            {% endfor %}
+        </select>
+        <select name="rarity">
+            <option value="">Редкость: любая</option>
+            {% for v in facets.rarity %}
+                <option value="{{ v }}" {% if v == rarity %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+        </select>
+        <label style="display:flex;align-items:center;gap:6px;color:var(--muted)">
+            <input type="checkbox" name="owned" value="1" {% if only_owned %}checked{% endif %}>
+            только мои
+        </label>
+        <button type="submit">Найти</button>
+    </form>
+
+    <table class="list">
+        <tr>
+            <th></th>
+            <th>Название</th>
+            <th>Класс</th>
+            <th>Слот</th>
+            <th>Редкость</th>
+            <th>Уровень</th>
+            <th>Код</th>
+            <th>Моё</th>
+        </tr>
+        {% for row in rows %}
+            <tr>
+                <td><img class="thumb" src="{{ image_url(row.image_local, row.source_url) }}" alt=""></td>
+                <td><a href="/items/{{ row.code }}">{{ row.name_en }}</a></td>
+                <td>{{ row.fighter_type|ru }}</td>
+                <td>{{ row.slot|ru }}</td>
+                <td>{{ row.rarity }}</td>
+                <td class="muted">
+                    {% if row.min_level or row.max_level %}
+                        {{ row.min_level }}–{{ row.max_level }}
+                    {% endif %}
+                </td>
+                <td class="muted">{{ row.code }}</td>
+                <td>
+                    <form method="post" action="/items/{{ row.code }}/own">
+                        <button type="submit" title="Отметить наличие"
+                                style="background:none;border:none;cursor:pointer;font-size:16px">
+                            {% if row.owned %}✅{% else %}⬜{% endif %}
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="8" class="muted">Ничего не найдено</td></tr>
+        {% endfor %}
+    </table>
+
+    {% if pages > 1 %}
+        <div class="pager">
+            {% if page > 1 %}<a href="{{ page_link(request, page - 1) }}">← Назад</a>{% endif %}
+            <span>Стр. {{ page }} из {{ pages }}</span>
+            {% if page < pages %}<a href="{{ page_link(request, page + 1) }}">Вперёд →</a>{% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

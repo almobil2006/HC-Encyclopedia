@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ rune.name_en }} — руна{% endblock %}
+{% block content %}
+    <a class="back" href="/runes">← К рунам</a>
+    <h1>{{ rune.name_en }}</h1>
+
+    <div class="detail-grid">
+        <div class="panel" style="text-align:center">
+            <img class="big" src="{{ image_url(rune.image_local, rune.source_url) }}" alt="">
+        </div>
+
+        <div class="panel">
+            <table class="kv">
+                <tr><td>Код</td><td>{{ rune.code }}</td></tr>
+                <tr><td>Тип</td><td>{{ rune.rune_type|ru }}</td></tr>
+                <tr><td>Событие</td><td>{{ rune.event_name }} {{ rune.event_date }}</td></tr>
+                <tr><td>Коллекция</td><td>{{ rune.collection|ru }}</td></tr>
+                <tr><td>Источник</td><td>{{ rune.source }}</td></tr>
+            </table>
+        </div>
+    </div>
+
+    {% if rune.description_tank %}
+        <h2>Описание — танк</h2>
+        <div class="bonus">{{ rune.description_tank }}</div>
+    {% endif %}
+
+    {% if rune.description_mage %}
+        <h2>Описание — маг</h2>
+        <div class="bonus">{{ rune.description_mage }}</div>
+    {% endif %}
+
+    {% if rune.description_archer %}
+        <h2>Описание — лучник</h2>
+        <div class="bonus">{{ rune.description_archer }}</div>
+    {% endif %}
+{% endblock %}

@@ -5,33 +5,33 @@ from dataclasses import dataclass
 class Set:
 
     #
-    # идентификаторы
+    # РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹
     #
 
     code: str
     set_id: int | None = None
 
     #
-    # название
+    # РЅР°Р·РІР°РЅРёРµ
     #
 
     name_en: str = ""
     name_ru: str = ""
 
     #
-    # класс
+    # РєР»Р°СЃСЃ
     #
 
     fighter_type: str = ""
 
     #
-    # событие
+    # СЃРѕР±С‹С‚РёРµ
     #
 
     event_name: str = ""
 
     #
-    # изображения
+    # РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
     #
 
     image: str = ""
@@ -39,14 +39,14 @@ class Set:
     image_local: str = ""
 
     #
-    # описание
+    # РѕРїРёСЃР°РЅРёРµ
     #
 
     description_en: str = ""
     description_ru: str = ""
 
     #
-    # основные бонусы
+    # РѕСЃРЅРѕРІРЅС‹Рµ Р±РѕРЅСѓСЃС‹
     #
 
     bonus_2: str = ""
@@ -78,7 +78,7 @@ class Set:
     substance_purple_6: str = ""
 
     #
-    # Материалы
+    # РњР°С‚РµСЂРёР°Р»С‹
     #
 
     essence_name: str = ""
@@ -94,7 +94,7 @@ class Set:
     material4_image: str = ""
 
     #
-    # Рекомендуемые предметы
+    # Р РµРєРѕРјРµРЅРґСѓРµРјС‹Рµ РїСЂРµРґРјРµС‚С‹
     #
 
     recommended_items: str = ""

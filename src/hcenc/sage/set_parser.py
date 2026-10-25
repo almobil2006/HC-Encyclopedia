@@ -1,4 +1,4 @@
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 
 from hcenc.models.recommended_item import RecommendedItem
 from hcenc.models.set import Set
@@ -6,13 +6,29 @@ from hcenc.models.set import Set
 
 class SetParser:
 
-    def parse(self, html: str) -> list[Set]:
+    #
+    # список сетов
+    #
+    # Разметка сайта: три колонки —
+    # название, картинка, пустая
+    #
+
+    def parse(
+        self,
+        html: str,
+    ) -> list[Set]:
 
         html = html.removeprefix("200#")
 
-        soup = BeautifulSoup(html, "html.parser")
+        soup = BeautifulSoup(
+            html,
+            "html.parser",
+        )
 
-        table = soup.find("table", id="items")
+        table = soup.find(
+            "table",
+            id="items",
+        )
 
         if table is None:
             return []
@@ -23,46 +39,59 @@ class SetParser:
 
             cells = row.find_all("td")
 
-            if len(cells) < 5:
+            if len(cells) < 2:
                 continue
 
-            onclick = cells[0].get("onclick", "")
+            onclick = cells[0].get(
+                "onclick",
+                "",
+            )
 
             set_id = None
 
             if "ViewSetInfo('" in onclick:
 
                 try:
+
                     set_id = int(
                         onclick.split("'")[1]
                     )
+
                 except Exception:
                     pass
 
-            img = cells[4].find("img")
+            img = cells[1].find("img")
 
             image = ""
             source_url = ""
 
             if img:
 
-                image = img.get("src", "")
+                image = img.get(
+                    "src",
+                    "",
+                )
 
                 if image.startswith("/"):
                     source_url = (
                         "https://www.sagehc.eu"
                         + image
                     )
+
                 else:
                     source_url = image
 
             sets.append(
                 Set(
-                    code=cells[3].get_text(strip=True),
+                    code=(
+                        f"SET{set_id}"
+                        if set_id is not None
+                        else ""
+                    ),
                     set_id=set_id,
-                    name_en=cells[0].get_text(strip=True),
-                    fighter_type=cells[1].get_text(strip=True),
-                    event_name=cells[2].get_text(strip=True),
+                    name_en=cells[0].get_text(
+                        strip=True,
+                    ),
                     image=image,
                     source_url=source_url,
                 )
@@ -74,7 +103,10 @@ class SetParser:
 
         html = html.removeprefix("200#")
 
-        soup = BeautifulSoup(html, "html.parser")
+        soup = BeautifulSoup(
+            html,
+            "html.parser",
+        )
 
         values = []
 
@@ -87,6 +119,10 @@ class SetParser:
 
         return max(values) if values else 1
 
+    #
+    # карточка сета
+    #
+
     def parse_detail(
         self,
         html: str,
@@ -95,13 +131,22 @@ class SetParser:
 
         html = html.removeprefix("200#")
 
-        soup = BeautifulSoup(html, "html.parser")
+        soup = BeautifulSoup(
+            html,
+            "html.parser",
+        )
+
+        #
+        # бонусы сета
+        #
 
         descriptions = {}
 
         for h3 in soup.find_all("h3"):
 
-            title = h3.get_text(strip=True).lower()
+            title = h3.get_text(
+                strip=True,
+            ).lower()
 
             if not title.startswith("description"):
                 continue
@@ -137,12 +182,100 @@ class SetParser:
             or item.bonus_2
         )
 
-        sections = soup.find_all(
-            "div",
-            class_="settypeinfo",
+        #
+        # картинка
+        #
+
+        img = soup.select_one(
+            ".runeinfo_left img"
         )
 
-        for section in sections:
+        if img:
+
+            src = img.get(
+                "src",
+                "",
+            )
+
+            item.image = src
+
+            if src.startswith("/"):
+                item.source_url = (
+                    "https://www.sagehc.eu"
+                    + src
+                )
+
+            else:
+                item.source_url = src
+
+        #
+        # блок информации: класс и событие
+        #
+
+        info = soup.select_one(
+            ".runeinfo_right"
+        )
+
+        if info:
+
+            labels = {
+                "Fighter type": "fighter_type",
+                "Event": "event_name",
+            }
+
+            for bold in info.find_all("b"):
+
+                label = (
+                    bold
+                    .get_text(strip=True)
+                    .rstrip(":")
+                )
+
+                field = labels.get(label)
+
+                if field is None:
+                    continue
+
+                sibling = bold.next_sibling
+
+                if not isinstance(
+                    sibling,
+                    NavigableString,
+                ):
+                    continue
+
+                setattr(
+                    item,
+                    field,
+                    str(sibling).strip(),
+                )
+
+        #
+        # субстанции: секции с иконкой цвета
+        #
+
+        colors = {
+            "red": (
+                "substance_red_2",
+                "substance_red_4",
+                "substance_red_6",
+            ),
+            "yellow": (
+                "substance_yellow_2",
+                "substance_yellow_4",
+                "substance_yellow_6",
+            ),
+            "purple": (
+                "substance_purple_2",
+                "substance_purple_4",
+                "substance_purple_6",
+            ),
+        }
+
+        for section in soup.find_all(
+            "div",
+            class_="settypeinfo_mobile",
+        ):
 
             header = section.find(
                 "div",
@@ -152,17 +285,33 @@ class SetParser:
             if header is None:
                 continue
 
-            title = header.get_text(
-                " ",
-                strip=True,
-            ).lower()
+            icon = header.find("img")
 
-            data = {}
+            color = ""
+
+            if icon:
+
+                src = icon.get(
+                    "src",
+                    "",
+                ).lower()
+
+                for name in colors:
+
+                    if name in src:
+                        color = name
+
+                        break
+
+            if not color:
+                continue
+
+            fields = colors[color]
 
             for h3 in section.find_all("h3"):
 
-                key = h3.get_text(
-                    strip=True
+                title = h3.get_text(
+                    strip=True,
                 ).lower()
 
                 div = h3.find_next("div")
@@ -170,77 +319,87 @@ class SetParser:
                 if div is None:
                     continue
 
-                data[key] = div.get_text(
+                text = div.get_text(
                     "\n",
                     strip=True,
                 )
 
-            if "chaos" in title:
+                if title.endswith("2/6"):
+                    setattr(
+                        item,
+                        fields[0],
+                        text,
+                    )
 
-                item.substance_red_2 = data.get("description 2/6", "")
-                item.substance_red_4 = data.get("description 4/6", "")
-                item.substance_red_6 = data.get("description 6/6", "")
+                elif title.endswith("4/6"):
+                    setattr(
+                        item,
+                        fields[1],
+                        text,
+                    )
 
-            elif "greatness" in title:
+                elif title.endswith("6/6"):
+                    setattr(
+                        item,
+                        fields[2],
+                        text,
+                    )
 
-                item.substance_yellow_2 = data.get("description 2/6", "")
-                item.substance_yellow_4 = data.get("description 4/6", "")
-                item.substance_yellow_6 = data.get("description 6/6", "")
+        #
+        # материалы
+        #
 
-            elif "harmony" in title:
+        names = (
+            "essence",
+            "material1",
+            "material2",
+            "material3",
+            "material4",
+        )
 
-                item.substance_purple_2 = data.get("description 2/6", "")
-                item.substance_purple_4 = data.get("description 4/6", "")
-                item.substance_purple_6 = data.get("description 6/6", "")
+        for box in soup.select(".side-box"):
 
-        tables = soup.find_all("table")
+            title = box.find("p")
 
-        for table in tables:
-
-            rows = table.find_all("tr")
-
-            if len(rows) < 5:
+            if title is None:
                 continue
 
-            names = []
-            images = []
+            if title.get_text(
+                strip=True,
+            ) != "Materials":
+                continue
 
-            for row in rows:
+            rows = box.find_all("tr")
 
-                cells = row.find_all("td")
+            for index, row in enumerate(rows):
 
-                if len(cells) < 2:
-                    continue
+                if index >= len(names):
+                    break
 
-                img = cells[0].find("img")
+                img = row.find("img")
 
                 if img:
-                    images.append(
-                        img.get("src", "")
+                    setattr(
+                        item,
+                        names[index] + "_image",
+                        img.get(
+                            "src",
+                            "",
+                        ),
                     )
 
-                names.append(
-                    cells[1].get_text(
-                        " ",
-                        strip=True,
+                bold = row.find("b")
+
+                if bold:
+                    setattr(
+                        item,
+                        names[index] + "_name",
+                        bold.get_text(
+                            strip=True,
+                        ),
                     )
-                )
 
-            if len(names) >= 5:
-
-                item.essence_name = names[0]
-                item.material1_name = names[1]
-                item.material2_name = names[2]
-                item.material3_name = names[3]
-                item.material4_name = names[4]
-
-                item.essence_image = images[0]
-                item.material1_image = images[1]
-                item.material2_image = images[2]
-                item.material3_image = images[3]
-                item.material4_image = images[4]
-
-                break
+            break
 
         return item
 
@@ -252,7 +411,10 @@ class SetParser:
 
         html = html.removeprefix("200#")
 
-        soup = BeautifulSoup(html, "html.parser")
+        soup = BeautifulSoup(
+            html,
+            "html.parser",
+        )
 
         items = []
 
@@ -263,7 +425,10 @@ class SetParser:
             if len(cells) < 5:
                 continue
 
-            onclick = row.get("onclick", "")
+            onclick = row.get(
+                "onclick",
+                "",
+            )
 
             item_code = ""
             item_url = ""
@@ -271,7 +436,10 @@ class SetParser:
             if "ViewItemInfo('" in onclick:
 
                 try:
-                    item_code = onclick.split("'")[1]
+
+                    item_code = (
+                        onclick.split("'")[1]
+                    )
 
                     item_url = (
                         "https://www.sagehc.eu/web/item/"
@@ -288,13 +456,17 @@ class SetParser:
 
             if img:
 
-                image = img.get("src", "")
+                image = img.get(
+                    "src",
+                    "",
+                )
 
                 if image.startswith("/"):
                     source_url = (
                         "https://www.sagehc.eu"
                         + image
                     )
+
                 else:
                     source_url = image
 
@@ -302,8 +474,12 @@ class SetParser:
                 RecommendedItem(
                     set_code=set_code,
                     item_code=item_code,
-                    item_name=cells[0].get_text(strip=True),
-                    slot=cells[3].get_text(strip=True),
+                    item_name=cells[0].get_text(
+                        strip=True,
+                    ),
+                    slot=cells[3].get_text(
+                        strip=True,
+                    ),
                     item_url=item_url,
                     image=image,
                     source_url=source_url,

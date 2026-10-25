@@ -60,6 +60,28 @@ class RecommendedItemRepository:
                 ],
             )
 
+    def replace(
+        self,
+        set_code: str,
+        items: list[RecommendedItem],
+    ) -> None:
+
+        with engine.begin() as conn:
+
+            conn.execute(
+                text(
+                    """
+                    DELETE FROM recommended_items
+                    WHERE set_code=:set_code
+                    """
+                ),
+                {
+                    "set_code": set_code,
+                },
+            )
+
+        self.save(items)
+
     def by_set(
         self,
         set_code: str,

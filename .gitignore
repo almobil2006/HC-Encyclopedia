@@ -27,3 +27,13 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+
+# Runtime caches and downloaded images
+assets/cache/
+assets/items/
+assets/runes/
+assets/sets/
+/cache/
