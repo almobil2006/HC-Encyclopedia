@@ -196,6 +196,28 @@ class UnitRepository:
             for slot in SLOTS
         }
 
+    def equipped_codes(
+        self,
+        exclude_unit: int | None = None,
+    ) -> set[str]:
+
+        with engine.begin() as conn:
+
+            rows = conn.execute(
+                text(
+                    """
+                    SELECT item_code
+                    FROM unit_items
+                    WHERE item_code <> ''
+                    """
+                )
+            )
+
+            return {
+                row[0]
+                for row in rows
+            }
+
     def assign(
         self,
         unit_id: int,
