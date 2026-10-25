@@ -139,6 +139,95 @@ def match_items(
     return total
 
 
+#
+# Импорт предметов, которых нет в каталоге SageHC
+# (базовые души и прочее, что есть только у mg-bot)
+#
+
+SLOT_BY_TYPE = {
+    1: "Weapon",
+    2: "Armor",
+    3: "Ring",
+    4: "Amulet",
+    5: "Artifact",
+    6: "Weapon Soul",
+    7: "Armor Soul",
+    8: "Totem",
+}
+
+CLASS_BY_CODE = {
+    0: "",
+    1: "Tank",
+    2: "Archer",
+    3: "Mage",
+}
+
+
+def import_missing_items(
+    sage_items: list,
+    en_items: list,
+    ru_items: list,
+) -> int:
+
+    from hcenc.models.item import Item
+
+    tag_ru = {
+        x["tag"]: x.get("n", "")
+        for x in ru_items
+        if x.get("tag") and x.get("n")
+    }
+
+    #
+    # один предмет на имя: вариант с максимальным
+    # уровнем (каталог mg-bot идёт по возрастанию lvl)
+    #
+
+    by_name: dict = {}
+
+    for x in sorted(
+        en_items,
+        key=lambda i: i.get("lvl") or 0,
+    ):
+
+        if x.get("t") not in SLOT_BY_TYPE:
+            continue
+
+        name = x.get("n") or ""
+
+        if name:
+            by_name[name] = x
+
+    existing = {
+        item.name_en
+        for item in sage_items
+    }
+
+    imported = 0
+
+    for name, x in by_name.items():
+
+        if name in existing:
+            continue
+
+        item = Item(
+            code=f"M{x['id']}",
+            name_en=name,
+            name_ru=tag_ru.get(x["tag"], ""),
+            fighter_type=CLASS_BY_CODE.get(
+                x.get("c"),
+                "",
+            ),
+            slot=SLOT_BY_TYPE.get(x.get("t")),
+            source="mg-bot",
+        )
+
+        item_repo.save([item])
+
+        imported += 1
+
+    return imported
+
+
 class MgBotSynchronizer:
 
     def sync(self) -> int:
@@ -227,6 +316,18 @@ class MgBotSynchronizer:
             f"Items: {ru_total}"
             f"/{len(items)}"
         )
+
+        #
+        # предметы, которых нет у SageHC
+        #
+
+        imported = import_missing_items(
+            items,
+            en_index["items"],
+            ru_index["items"],
+        )
+
+        print(f"Imported: {imported}")
 
         return total
 
