@@ -551,6 +551,54 @@ def unit_set(
     )
 
 
+@app.post("/units/{unit_id}/auto")
+def unit_auto_pick(
+    unit_id: int,
+):
+
+    unit = unit_repo.get(unit_id)
+
+    if unit is None:
+        raise HTTPException(status_code=404)
+
+    equipment = unit_repo.equipment(unit_id)
+
+    used = unit_repo.equipped_codes()
+
+    for slot in SLOTS:
+
+        #
+        # заполняем только пустые слоты,
+        # ручной выбор не трогаем
+        #
+
+        if equipment.get(slot):
+            continue
+
+        for candidate in item_repo.by_slot(
+            slot=slot,
+            fighter_type=unit.fighter_type,
+        ):
+
+            if candidate.code in used:
+                continue
+
+            unit_repo.assign(
+                unit_id,
+                slot,
+                candidate.code,
+            )
+
+            used.add(candidate.code)
+
+            break
+
+    return RedirectResponse(
+        f"/units/{unit_id}",
+        status_code=303,
+    )
+
+
 @app.post("/units/{unit_id}/slot")
 def unit_assign(
     unit_id: int,
