@@ -92,7 +92,7 @@
                 <td>{{ slot|ru }}</td>
                 <td>
                     {% if equipped %}
-                        <a href="/items/{{ equipped.code }}">{{ equipped.name_en }}</a>
+                        <a href="/items/{{ equipped.code }}">{{ equipped.name_ru or equipped.name_en }}</a>
                     {% else %}
                         <span class="muted">— пусто —</span>
                     {% endif %}
