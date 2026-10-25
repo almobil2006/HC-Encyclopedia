@@ -11,19 +11,32 @@
                 <option value="{{ v }}" {% if v == fighter_type %}selected{% endif %}>{{ v|ru }}</option>
             {% endfor %}
         </select>
+        <label style="display:flex;align-items:center;gap:6px;color:var(--muted)">
+            <input type="checkbox" name="owned" value="1" {% if only_owned %}checked{% endif %}>
+            только мои
+        </label>
         <button type="submit">Найти</button>
     </form>
 
     <div class="cards">
         {% for row in rows %}
-            <a class="card" href="/sets/{{ row.code }}">
-                <img src="{{ image_url(row.image_local, row.source_url) }}" alt="">
-                <div class="name">{{ row.name_ru or row.name_en }}</div>
-                <div class="sub">
-                    {% if row.fighter_type %}{{ row.fighter_type|ru }}{% endif %}
-                    {% if row.event_name %} · {{ row.event_name }}{% endif %}
-                </div>
-            </a>
+            <div class="card" style="position:relative">
+                <form method="post" action="/sets/{{ row.code }}/own"
+                      style="position:absolute; top:6px; right:6px; z-index:2">
+                    <button type="submit" title="Сет в наличии"
+                            style="background:none;border:none;cursor:pointer;font-size:16px">
+                        {% if row.owned %}✅{% else %}⬜{% endif %}
+                    </button>
+                </form>
+                <a href="/sets/{{ row.code }}" style="display:flex;flex-direction:column;gap:8px;color:inherit">
+                    <img src="{{ image_url(row.image_local, row.source_url) }}" alt="" style="align-self:center">
+                    <div class="name">{{ row.name_ru or row.name_en }}</div>
+                    <div class="sub">
+                        {% if row.fighter_type %}{{ row.fighter_type|ru }}{% endif %}
+                        {% if row.event_name %} · {{ row.event_name }}{% endif %}
+                    </div>
+                </a>
+            </div>
         {% endfor %}
     </div>
 

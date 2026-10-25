@@ -360,6 +360,7 @@ class Database:
                 "recommended_items": "TEXT",
                 "mgbot_id": "INTEGER",
                 "mgbot_elements": "TEXT",
+                "owned": "INTEGER DEFAULT 0",
             }
 
             existing = {

@@ -105,3 +105,9 @@ class Set:
 
     mgbot_id: int | None = None
     mgbot_elements: str = ""
+
+    #
+    # инвентарь игрока
+    #
+
+    owned: bool = False

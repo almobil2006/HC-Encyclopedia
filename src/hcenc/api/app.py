@@ -321,14 +321,18 @@ def sets_page(
     request: Request,
     q: str = "",
     fighter_type: str = "",
+    owned: str = "",
     page: int = Query(1, ge=1),
 ):
 
     size = 24
 
+    only_owned = owned == "1"
+
     rows, total = set_repo.page(
         q=q,
         fighter_type=fighter_type,
+        owned=only_owned,
         page=page,
         size=size,
     )
@@ -343,12 +347,35 @@ def sets_page(
             "pages": max(1, math.ceil(total / size)),
             "q": q,
             "fighter_type": fighter_type,
+            "only_owned": only_owned,
             "types": [
                 "Tank",
                 "Mage",
                 "Archer",
             ],
         },
+    )
+
+
+@app.post("/sets/{code}/own")
+def set_toggle_owned(
+    request: Request,
+    code: str,
+):
+
+    item = set_repo.get_set(code)
+
+    if item is None:
+        raise HTTPException(status_code=404)
+
+    set_repo.set_owned(
+        code,
+        not item.owned,
+    )
+
+    return RedirectResponse(
+        request.headers.get("referer") or "/sets",
+        status_code=303,
     )
 
 
@@ -424,6 +451,7 @@ def units_page(request: Request):
                 s.code: (s.name_ru or s.name_en)
                 for s in set_repo.all_sets()
             },
+            "owned_sets": set_repo.owned_sets(),
         },
     )
 
@@ -488,6 +516,8 @@ def unit_detail(
         else None
     )
 
+    all_sets = set_repo.all_sets()
+
     return templates.TemplateResponse(
         request,
         "unit.html",
@@ -496,7 +526,12 @@ def unit_detail(
             "slots": SLOTS,
             "equipment": equipment,
             "choices": choices,
-            "sets": set_repo.all_sets(),
+            "sets": all_sets,
+            "my_sets": [
+                s
+                for s in all_sets
+                if s.owned
+            ],
             "chosen_set": chosen_set,
         },
     )

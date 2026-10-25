@@ -2,11 +2,10 @@ import json
 import re
 
 from hcenc.db.database import database
-from hcenc.db.engine import engine
+from hcenc.db.item_repository import item_repo
 from hcenc.db.set_repository import set_repo
 from hcenc.mgbot.client import mgbot_client
 from hcenc.models.set import Set
-from sqlalchemy import text
 
 
 #
@@ -86,6 +85,60 @@ def match_set(
     return None
 
 
+def match_items(
+    sage_items: list,
+    en_items: list,
+    ru_items: list,
+) -> int:
+
+    #
+    # tag — стабильный идентификатор предмета в игре,
+    # он одинаков в каталогах всех языков
+    #
+
+    tag_ru = {
+        x["tag"]: x.get("n", "")
+        for x in ru_items
+        if x.get("tag") and x.get("n")
+    }
+
+    name_tag = {}
+
+    for x in en_items:
+
+        name = x.get("n", "")
+
+        if name and name not in name_tag:
+            name_tag[name] = x["tag"]
+
+    total = 0
+
+    for item in sage_items:
+
+        ru_name = name_tag.get(item.name_en)
+
+        if not ru_name:
+            ru_name = name_tag.get(
+                item.name_en
+                .removesuffix(" Artifact")
+                .strip()
+            )
+
+        if ru_name:
+            ru_name = tag_ru.get(ru_name, ru_name)
+
+        if not ru_name:
+            continue
+
+        item.name_ru = ru_name
+
+        item_repo.save([item])
+
+        total += 1
+
+    return total
+
+
 class MgBotSynchronizer:
 
     def sync(self) -> int:
@@ -157,6 +210,23 @@ class MgBotSynchronizer:
                 f"{item.name_en}"
                 f" -> {ru['name']}"
             )
+
+        #
+        # русские названия предметов
+        #
+
+        items = item_repo.all()
+
+        ru_total = match_items(
+            items,
+            en_index["items"],
+            ru_index["items"],
+        )
+
+        print(
+            f"Items: {ru_total}"
+            f"/{len(items)}"
+        )
 
         return total
 
