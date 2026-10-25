@@ -15,6 +15,34 @@ from hcenc.sage.sync_rune_images import sync_rune_images
 app = typer.Typer()
 
 
+@app.command("all")
+def sync_all_commands():
+
+    steps = (
+        ("items", sync_items),
+        ("item-details", sync_item_details),
+        ("sets", sync_sets),
+        ("set-details", sync_set_details),
+        ("set-images", sync_set_images),
+        ("runes", sync_runes),
+        ("rune-details", sync_rune_details),
+        ("rune-images", sync_rune_images),
+    )
+
+    total = 0
+
+    for name, step in steps:
+
+        print()
+        print(f"=== {name} ===")
+
+        total += step.sync()
+
+    print()
+
+    print(f"Downloaded: {total}")
+
+
 @app.command("items")
 def items():
 
