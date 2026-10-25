@@ -477,6 +477,31 @@ def unit_create(
     )
 
 
+@app.post("/units/from-set/{set_code}")
+def unit_from_set(set_code: str):
+
+    chosen = set_repo.get_set(set_code)
+
+    if chosen is None:
+        raise HTTPException(status_code=404)
+
+    unit_id = unit_repo.create(
+        name=(chosen.name_ru or chosen.name_en),
+        fighter_type=chosen.fighter_type,
+        level=None,
+    )
+
+    unit_repo.assign_set(
+        unit_id,
+        set_code,
+    )
+
+    return RedirectResponse(
+        f"/units/{unit_id}",
+        status_code=303,
+    )
+
+
 @app.post("/units/{unit_id}/delete")
 def unit_delete(unit_id: int):
 

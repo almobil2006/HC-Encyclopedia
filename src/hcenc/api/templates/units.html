@@ -21,12 +21,23 @@
 
     {% if owned_sets %}
         <h2>Мои сеты</h2>
-        <div class="cards" style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr))">
+        <p class="muted" style="margin-top:-6px">
+            Чтобы надеть предметы комплекта, соберите из него юнита — откроется страница с шестью слотами.
+        </p>
+        <div class="cards" style="grid-template-columns: repeat(auto-fill, minmax(190px, 1fr))">
             {% for s in owned_sets %}
-                <a class="card" href="/sets/{{ s.code }}">
-                    <img src="{{ image_url(s.image_local, s.source_url) }}" alt="">
-                    <div class="name" style="font-size:14px">{{ s.name_ru or s.name_en }}</div>
-                </a>
+                <div class="card">
+                    <a href="/sets/{{ s.code }}" style="display:flex;flex-direction:column;gap:8px;color:inherit">
+                        <img src="{{ image_url(s.image_local, s.source_url) }}" alt="" style="align-self:center">
+                        <div class="name" style="font-size:14px">{{ s.name_ru or s.name_en }}</div>
+                    </a>
+                    <form method="post" action="/units/from-set/{{ s.code }}">
+                        <button type="submit"
+                                style="background:var(--accent-2);color:#101418;font-weight:600;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:13px">
+                            Собрать юнита
+                        </button>
+                    </form>
+                </div>
             {% endfor %}
         </div>
     {% endif %}
