@@ -44,7 +44,7 @@
         {% for row in rows %}
             <tr>
                 <td><img class="thumb" src="{{ image_url(row.image_local, row.source_url) }}" alt=""></td>
-                <td><a href="/items/{{ row.code }}">{{ row.name_en }}</a></td>
+                <td><a href="/items/{{ row.code }}">{{ row.name_ru or row.name_en }}</a></td>
                 <td>{{ row.fighter_type|ru }}</td>
                 <td>{{ row.slot|ru }}</td>
                 <td>{{ row.rarity }}</td>

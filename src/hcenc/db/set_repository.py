@@ -57,7 +57,9 @@ _INSERT = text(
         recommended_items,
 
         mgbot_id,
-        mgbot_elements
+        mgbot_elements,
+
+        owned
     )
     VALUES
     (
@@ -108,7 +110,9 @@ _INSERT = text(
         :recommended_items,
 
         :mgbot_id,
-        :mgbot_elements
+        :mgbot_elements,
+
+        :owned
     )
     """
 )
@@ -163,7 +167,9 @@ SELECT
     recommended_items,
 
     mgbot_id,
-    mgbot_elements
+    mgbot_elements,
+
+    owned
 
 FROM sets
 """
@@ -274,10 +280,52 @@ class SetRepository:
             ).mappings().all()
 
 
+    def set_owned(
+        self,
+        code: str,
+        owned: bool,
+    ) -> None:
+
+        with engine.begin() as conn:
+
+            conn.execute(
+                text(
+                    """
+                    UPDATE sets
+                    SET owned=:owned
+                    WHERE code=:code
+                    """
+                ),
+                {
+                    "code": code,
+                    "owned": int(owned),
+                },
+            )
+
+    def owned_sets(self) -> list[Set]:
+
+        with engine.begin() as conn:
+
+            rows = conn.execute(
+                text(
+                    f"""
+                    {_SELECT_ALL}
+                    WHERE owned = 1
+                    ORDER BY set_id DESC
+                    """
+                )
+            ).mappings()
+
+            return [
+                Set(**dict(row))
+                for row in rows
+            ]
+
     def page(
         self,
         q: str = "",
         fighter_type: str = "",
+        owned: bool = False,
         page: int = 1,
         size: int = 24,
     ) -> tuple[list[Set], int]:
@@ -296,6 +344,9 @@ class SetRepository:
         if fighter_type:
             conditions.append("fighter_type = :fighter_type")
             params["fighter_type"] = fighter_type
+
+        if owned:
+            conditions.append("owned = 1")
 
         where = (
             "WHERE " + " AND ".join(conditions)
@@ -328,7 +379,9 @@ class SetRepository:
                         event_name,
                         image,
                         source_url,
-                        image_local
+                        image_local,
+
+                        owned
                     FROM sets
                     {where}
                     ORDER BY

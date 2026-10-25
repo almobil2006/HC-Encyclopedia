@@ -14,11 +14,28 @@
         <form method="post" action="/units/{{ unit.id }}/set" class="filters" style="margin:0">
             <select name="set_code">
                 <option value="">— без сета —</option>
-                {% for s in sets %}
-                    <option value="{{ s.code }}" {% if unit.set_code == s.code %}selected{% endif %}>
-                        {{ s.name_ru or s.name_en }}{% if s.fighter_type %} ({{ s.fighter_type|ru }}){% endif %}
-                    </option>
-                {% endfor %}
+                {% if my_sets %}
+                    <optgroup label="Мои сеты">
+                        {% for s in my_sets %}
+                            <option value="{{ s.code }}" {% if unit.set_code == s.code %}selected{% endif %}>
+                                {{ s.name_ru or s.name_en }}{% if s.fighter_type %} ({{ s.fighter_type|ru }}){% endif %}
+                            </option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label="Остальные сеты">
+                        {% for s in sets if not s.owned %}
+                            <option value="{{ s.code }}" {% if unit.set_code == s.code %}selected{% endif %}>
+                                {{ s.name_ru or s.name_en }}{% if s.fighter_type %} ({{ s.fighter_type|ru }}){% endif %}
+                            </option>
+                        {% endfor %}
+                    </optgroup>
+                {% else %}
+                    {% for s in sets %}
+                        <option value="{{ s.code }}" {% if unit.set_code == s.code %}selected{% endif %}>
+                            {{ s.name_ru or s.name_en }}{% if s.fighter_type %} ({{ s.fighter_type|ru }}){% endif %}
+                        </option>
+                    {% endfor %}
+                {% endif %}
             </select>
             <button type="submit">Сохранить</button>
         </form>
@@ -77,7 +94,7 @@
                             <option value="">— не выбрано —</option>
                             {% for option in options %}
                                 <option value="{{ option.code }}" {% if equipped and equipped.code == option.code %}selected{% endif %}>
-                                    {{ option.name_en }}
+                                    {{ option.name_ru or option.name_en }}
                                     {% if option.max_level %} ({{ option.max_level }}){% endif %}
                                 </option>
                             {% endfor %}

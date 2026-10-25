@@ -19,6 +19,18 @@
         </form>
     </div>
 
+    {% if owned_sets %}
+        <h2>Мои сеты</h2>
+        <div class="cards" style="grid-template-columns: repeat(auto-fill, minmax(170px, 1fr))">
+            {% for s in owned_sets %}
+                <a class="card" href="/sets/{{ s.code }}">
+                    <img src="{{ image_url(s.image_local, s.source_url) }}" alt="">
+                    <div class="name" style="font-size:14px">{{ s.name_ru or s.name_en }}</div>
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {% if units %}
         <div class="cards" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr))">
             {% for entry in units %}
