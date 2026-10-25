@@ -380,6 +380,26 @@ class ItemRepository:
             else ""
         )
 
+        #
+        # при поиске сортируем по имени — совпадения
+        # видны сразу, а не на следующих страницах
+        #
+
+        if q:
+            order = (
+                "ORDER BY lower(name_ru),"
+                " lower(name_en)"
+            )
+
+        else:
+            order = (
+                "ORDER BY"
+                " fighter_type,"
+                " slot,"
+                " rarity,"
+                " name_en"
+            )
+
         with engine.begin() as conn:
 
             total = conn.execute(
@@ -429,11 +449,7 @@ class ItemRepository:
 
                     FROM items
                     {where}
-                    ORDER BY
-                        fighter_type,
-                        slot,
-                        rarity,
-                        name_en
+                    {order}
                     LIMIT :limit OFFSET :offset
                     """
                 ),
