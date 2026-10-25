@@ -5,7 +5,14 @@ from hcenc.models.item import Item
 from hcenc.models.unit import Unit
 
 
+#
+# Слоты юнита — как в игре: левая колонка
+# (души оружия и брони), затем основные шесть
+#
+
 SLOTS = (
+    "Weapon Soul",
+    "Armor Soul",
     "Weapon",
     "Armor",
     "Ring",
