@@ -533,6 +533,7 @@ def unit_detail(
         choices[slot] = item_repo.by_slot(
             slot=slot,
             fighter_type=unit.fighter_type,
+            any_class=True,
         )
 
     chosen_set = (

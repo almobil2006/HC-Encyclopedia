@@ -509,12 +509,14 @@ class ItemRepository:
         slot: str,
         fighter_type: str = "",
         owned_only: bool = True,
+        any_class: bool = False,
     ) -> list[Item]:
 
         conditions = ["items.slot = :slot"]
         params: dict = {"slot": slot}
 
-        if fighter_type:
+        if fighter_type and not any_class:
+
             conditions.append(
                 "(items.fighter_type = :fighter_type"
                 " OR items.fighter_type = '')"
@@ -525,6 +527,29 @@ class ItemRepository:
             conditions.append("items.owned = 1")
 
         where = "WHERE " + " AND ".join(conditions)
+
+        #
+        # при мягком режиме подходящие по классу
+        # предметы идут первыми, остальные — после
+        #
+
+        if any_class and fighter_type:
+            order = (
+                "ORDER BY"
+                " CASE WHEN items.fighter_type"
+                " IN ('', :fighter_type)"
+                " THEN 0 ELSE 1 END,"
+                " max_level DESC,"
+                " name_en"
+            )
+            params["fighter_type"] = fighter_type
+
+        else:
+            order = (
+                "ORDER BY"
+                " max_level DESC,"
+                " name_en"
+            )
 
         with engine.begin() as conn:
 
@@ -547,9 +572,7 @@ class ItemRepository:
                         image_local
                     FROM items
                     {where}
-                    ORDER BY
-                        max_level DESC,
-                        name_en
+                    {order}
                     """
                 ),
                 params,
