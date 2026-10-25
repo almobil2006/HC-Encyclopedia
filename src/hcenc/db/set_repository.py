@@ -54,7 +54,10 @@ _INSERT = text(
         material3_image,
         material4_image,
 
-        recommended_items
+        recommended_items,
+
+        mgbot_id,
+        mgbot_elements
     )
     VALUES
     (
@@ -102,7 +105,10 @@ _INSERT = text(
         :material3_image,
         :material4_image,
 
-        :recommended_items
+        :recommended_items,
+
+        :mgbot_id,
+        :mgbot_elements
     )
     """
 )
@@ -154,7 +160,10 @@ SELECT
     material3_image,
     material4_image,
 
-    recommended_items
+    recommended_items,
+
+    mgbot_id,
+    mgbot_elements
 
 FROM sets
 """

@@ -3,6 +3,7 @@ import typer
 from hcenc.sage.sync_items import sync_items
 from hcenc.sage.sync_item_details import sync_item_details
 from hcenc.sage.sync_runes import sync_runes
+from hcenc.mgbot.sync import sync_mgbot
 from hcenc.sage.sync_sets import sync_sets
 from hcenc.sage.sync_set_details import sync_set_details
 from hcenc.sage.sync_set_images import sync_set_images
@@ -87,6 +88,17 @@ def rune_details():
 def rune_images():
 
     total = sync_rune_images.sync()
+
+    print()
+
+    print(f"Downloaded: {total}")
+
+
+@app.command("mgbot")
+def mgbot():
+    """Русские названия и состав сетов с mg-bot.ru."""
+
+    total = sync_mgbot.sync()
 
     print()
 

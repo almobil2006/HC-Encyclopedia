@@ -16,7 +16,7 @@
                 <option value="">— без сета —</option>
                 {% for s in sets %}
                     <option value="{{ s.code }}" {% if unit.set_code == s.code %}selected{% endif %}>
-                        {{ s.name_en }}{% if s.fighter_type %} ({{ s.fighter_type|ru }}){% endif %}
+                        {{ s.name_ru or s.name_en }}{% if s.fighter_type %} ({{ s.fighter_type|ru }}){% endif %}
                     </option>
                 {% endfor %}
             </select>
@@ -28,7 +28,7 @@
                 <img class="thumb" style="width:72px;height:72px"
                      src="{{ image_url(chosen_set.image_local, chosen_set.source_url) }}" alt="">
                 <div style="flex:1">
-                    <div><a href="/sets/{{ chosen_set.code }}"><b>{{ chosen_set.name_en }}</b></a>
+                    <div><a href="/sets/{{ chosen_set.code }}"><b>{{ chosen_set.name_ru or chosen_set.name_en }}</b></a>
                         {% if chosen_set.fighter_type %}<span class="muted">· {{ chosen_set.fighter_type|ru }}</span>{% endif %}
                     </div>
                     {% if chosen_set.bonus_2 %}

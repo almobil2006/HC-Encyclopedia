@@ -18,7 +18,7 @@
         {% for row in rows %}
             <a class="card" href="/sets/{{ row.code }}">
                 <img src="{{ image_url(row.image_local, row.source_url) }}" alt="">
-                <div class="name">{{ row.name_en }}</div>
+                <div class="name">{{ row.name_ru or row.name_en }}</div>
                 <div class="sub">
                     {% if row.fighter_type %}{{ row.fighter_type|ru }}{% endif %}
                     {% if row.event_name %} · {{ row.event_name }}{% endif %}

@@ -358,6 +358,8 @@ class Database:
                 "material3_image": "TEXT",
                 "material4_image": "TEXT",
                 "recommended_items": "TEXT",
+                "mgbot_id": "INTEGER",
+                "mgbot_elements": "TEXT",
             }
 
             existing = {
