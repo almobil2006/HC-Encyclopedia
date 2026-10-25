@@ -1,0 +1,37 @@
+{
+  "units": [
+    {
+      "id": 2,
+      "name": "Робин Бэд",
+      "fighter_type": "Archer",
+      "level": 100,
+      "set_code": "SET53"
+    },
+    {
+      "id": 3,
+      "name": "Ледяной",
+      "fighter_type": "Archer",
+      "level": 100,
+      "set_code": ""
+    },
+    {
+      "id": 4,
+      "name": "Ice Angler",
+      "fighter_type": "",
+      "level": 100,
+      "set_code": "SET55"
+    }
+  ],
+  "unit_items": [
+    {
+      "unit_id": 2,
+      "slot": "Weapon",
+      "item_code": "G485"
+    }
+  ],
+  "owned_items": [
+    "G438",
+    "G468",
+    "G485"
+  ]
+}
