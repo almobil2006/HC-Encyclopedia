@@ -2,7 +2,11 @@
 {% block title %}{{ item.name_en }} — сет{% endblock %}
 {% block content %}
     <a class="back" href="/sets">← К сетам</a>
-    <h1>{{ item.name_en }}</h1>
+    <h1>{{ item.name_ru or item.name_en }}
+        {% if item.name_ru and item.name_en %}
+            <span class="muted" style="font-size:16px">{{ item.name_en }}</span>
+        {% endif %}
+    </h1>
 
     <div class="detail-grid">
         <div class="panel" style="text-align:center">
@@ -60,6 +64,20 @@
         {% if item.substance_purple_6 %}
             <div class="bonus purple"><div class="label">Фиолетовая — 6 предметов</div>{{ item.substance_purple_6 }}</div>
         {% endif %}
+    {% endif %}
+
+    {% if elements %}
+        <h2>Состав сета <span class="muted" style="font-size:13px">(mg-bot)</span></h2>
+        <table class="list">
+            <tr><th>Слот</th><th>Предмет</th><th>Редкости</th></tr>
+            {% for el in elements %}
+                <tr>
+                    <td>{{ el.slot }}</td>
+                    <td>{{ el.name }}</td>
+                    <td class="muted">{{ el.rarities }}</td>
+                </tr>
+            {% endfor %}
+        </table>
     {% endif %}
 
     {% if materials %}

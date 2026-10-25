@@ -98,3 +98,10 @@ class Set:
     #
 
     recommended_items: str = ""
+
+    #
+    # mg-bot: связка и состав сета
+    #
+
+    mgbot_id: int | None = None
+    mgbot_elements: str = ""

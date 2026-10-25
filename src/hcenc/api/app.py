@@ -1,3 +1,4 @@
+import json
 import math
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -136,6 +137,82 @@ def ru(value: str) -> str:
 
 
 templates.env.filters["ru"] = ru
+
+
+#
+# Состав сетов из mg-bot: тип элемента -> слот
+#
+
+MGBOT_SLOTS = {
+    1: "Оружие",
+    2: "Броня",
+    3: "Кольцо",
+    4: "Амулет",
+    5: "Артефакт",
+    6: "Душа оружия",
+    7: "Душа брони",
+    8: "Тотем",
+}
+
+
+def mgbot_elements(item) -> list[dict]:
+
+    if not item.mgbot_elements:
+        return []
+
+    try:
+
+        raw = json.loads(item.mgbot_elements)
+
+    except ValueError:
+        return []
+
+    groups: dict = {}
+
+    for element in raw:
+
+        group = groups.setdefault(
+            element.get("type"),
+            {
+                "names": [],
+                "rarities": [],
+            },
+        )
+
+        name = element.get("name", "")
+
+        if name and name not in group["names"]:
+            group["names"].append(name)
+
+        group["rarities"].append(
+            element.get("rarity")
+        )
+
+    result = []
+
+    for slot_type, group in sorted(groups.items()):
+
+        rarities = sorted(
+            r
+            for r in set(group["rarities"])
+            if r is not None
+        )
+
+        result.append(
+            {
+                "slot": MGBOT_SLOTS.get(
+                    slot_type,
+                    str(slot_type),
+                ),
+                "name": ", ".join(group["names"]),
+                "rarities": " / ".join(
+                    str(r)
+                    for r in rarities
+                ),
+            }
+        )
+
+    return result
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -315,6 +392,7 @@ def set_detail(
             "item": item,
             "materials": materials,
             "recommended": recommended_item_repo.by_set(code),
+            "elements": mgbot_elements(item),
         },
     )
 
@@ -343,7 +421,7 @@ def units_page(request: Request):
             "slots": SLOTS,
             "owned_count": item_repo.count_owned(),
             "set_names": {
-                s.code: s.name_en
+                s.code: (s.name_ru or s.name_en)
                 for s in set_repo.all_sets()
             },
         },
