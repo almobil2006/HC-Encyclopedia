@@ -106,6 +106,9 @@
                                 <option value="{{ option.code }}" {% if equipped and equipped.code == option.code %}selected{% endif %}>
                                     {{ option.name_ru or option.name_en }}
                                     {% if option.max_level %} ({{ option.max_level }}){% endif %}
+                                    {% if option.fighter_type and option.fighter_type != unit.fighter_type %}
+                                        — {{ option.fighter_type|ru }}
+                                    {% endif %}
                                 </option>
                             {% endfor %}
                         </select>
