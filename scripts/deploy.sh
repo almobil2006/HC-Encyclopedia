@@ -29,7 +29,7 @@ sudo apt-get install -y -qq python3 python3-venv python3-pip git
 
 if [ -d "$INSTALL_DIR/.git" ]; then
 
-    git -C "$INSTALL_DIR" pull --ff-only
+    git -C "$INSTALL_DIR" pull --rebase
 
 else
 

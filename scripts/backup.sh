@@ -14,12 +14,12 @@ if [ ! -f backup/profile.json ]; then
     exit 1
 fi
 
-if git diff --quiet -- backup/profile.json; then
+git add backup/profile.json
+
+if git diff --cached --quiet -- backup/profile.json; then
     # изменений нет
     exit 0
 fi
-
-git add backup/profile.json
 
 git -c user.name="hcenc-backup" \
     -c user.email="almobil2006@gmail.com" \
