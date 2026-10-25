@@ -5,6 +5,7 @@ from hcenc.cli.doctor import doctor
 from hcenc.cli.serve import serve
 from hcenc.cli.db import app as db_app
 from hcenc.cli.sync import app as sync_app
+from hcenc.cli.backup import app as backup_app
 
 app = typer.Typer(
     help="HC Encyclopedia",
@@ -23,6 +24,11 @@ app.add_typer(
 app.add_typer(
     sync_app,
     name="sync",
+)
+
+app.add_typer(
+    backup_app,
+    name="backup",
 )
 
 if __name__ == "__main__":
