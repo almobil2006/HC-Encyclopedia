@@ -1,3 +1,5 @@
+import json
+
 import requests
 
 from hcenc.core.app import app
@@ -23,6 +25,38 @@ class MgBotClient:
         name: str,
     ) -> dict | list | None:
 
+        cache = (
+            app.config.cache / "mgbot"
+        )
+
+        cache.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
+        cache_file = (
+            cache
+            / f"{lang}_{name.replace('/', '_')}"
+        )
+
+        #
+        # сквозной кэш: повторные синки
+        # не качают одно и то же
+        #
+
+        if cache_file.exists():
+
+            try:
+
+                return json.loads(
+                    cache_file.read_text(
+                        encoding="utf-8",
+                    )
+                )
+
+            except ValueError:
+                pass
+
         url = (
             f"{self.BASE}/{lang}/{name}"
             "?v=1"
@@ -36,19 +70,7 @@ class MgBotClient:
         if response.status_code != 200:
             return None
 
-        cache = (
-            app.config.cache / "mgbot"
-        )
-
-        cache.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
-
-        (
-            cache
-            / f"{lang}_{name.replace('/', '_')}"
-        ).write_text(
+        cache_file.write_text(
             response.text,
             encoding="utf-8",
         )

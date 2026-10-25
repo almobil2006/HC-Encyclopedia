@@ -228,6 +228,76 @@ def import_missing_items(
     return imported
 
 
+def fetch_power(
+    sage_items: list,
+    en_items: list,
+    ru_items: list,
+) -> int:
+
+    tag_g = {
+        x["tag"]: x.get("g")
+        for x in ru_items
+        if x.get("tag")
+    }
+
+    name_tag = {}
+
+    for x in en_items:
+
+        name = x.get("n", "")
+
+        if name and name not in name_tag:
+            name_tag[name] = x["tag"]
+
+    updated = 0
+
+    for item in sage_items:
+
+        tag = name_tag.get(item.name_en)
+
+        if not tag:
+            continue
+
+        g = tag_g.get(tag)
+
+        if g is None:
+            continue
+
+        data = mgbot_client.fetch(
+            "ru",
+            f"items/g{g}.json",
+        )
+
+        if not data:
+            continue
+
+        tiers = data.get("x", {})
+
+        best = None
+
+        for entry in tiers.values():
+
+            power = entry.get("powerRange")
+
+            if not power or len(power) != 2:
+                continue
+
+            if best is None or power[1] > best[1]:
+                best = power
+
+        if best is None:
+            continue
+
+        item.power_min = best[0]
+        item.power_max = best[1]
+
+        item_repo.save([item])
+
+        updated += 1
+
+    return updated
+
+
 class MgBotSynchronizer:
 
     def sync(self) -> int:
@@ -328,6 +398,20 @@ class MgBotSynchronizer:
         )
 
         print(f"Imported: {imported}")
+
+        #
+        # сила предметов из файлов деталей
+        #
+
+        items = item_repo.all()
+
+        powered = fetch_power(
+            items,
+            en_index["items"],
+            ru_index["items"],
+        )
+
+        print(f"Power: {powered}/{len(items)}")
 
         return total
 
