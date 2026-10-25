@@ -335,11 +335,11 @@ class SetRepository:
 
         if q:
             conditions.append(
-                "(name_en LIKE :q"
-                " OR name_ru LIKE :q"
-                " OR code LIKE :q)"
+                "(lower(name_en) LIKE :q"
+                " OR lower(name_ru) LIKE :q"
+                " OR lower(code) LIKE :q)"
             )
-            params["q"] = f"%{q}%"
+            params["q"] = f"%{q.lower()}%"
 
         if fighter_type:
             conditions.append("fighter_type = :fighter_type")
