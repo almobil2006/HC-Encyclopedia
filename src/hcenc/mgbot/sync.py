@@ -1,3 +1,4 @@
+import difflib
 import json
 import re
 
@@ -84,6 +85,122 @@ def match_set(
                 return candidate
 
     return None
+
+
+def normalize_name(name: str) -> str:
+
+    lowered = name.lower()
+
+    lowered = (
+        lowered
+        .replace("’", "'")
+        .replace("'", "")
+    )
+
+    lowered = re.sub(
+        r"[^a-z0-9]+",
+        " ",
+        lowered,
+    )
+
+    return re.sub(r"\s+", " ", lowered).strip()
+
+
+def fuzzy_match_items(
+    sage_items: list,
+    en_items: list,
+    ru_items: list,
+) -> int:
+
+    tag_ru = {
+        x["tag"]: x.get("n", "")
+        for x in ru_items
+        if x.get("tag") and x.get("n")
+    }
+
+    #
+    # кандидаты: имя mg -> слот, tag
+    #
+
+    info = {}
+
+    for x in en_items:
+
+        name = x.get("n") or ""
+
+        if not name or name in info:
+            continue
+
+        if x["tag"] not in tag_ru:
+            continue
+
+        info[name] = {
+            "slot": SLOT_BY_TYPE.get(x.get("t")),
+            "tag": x["tag"],
+        }
+
+    by_slot: dict = {}
+
+    for name, data in info.items():
+
+        by_slot.setdefault(
+            data["slot"],
+            [],
+        ).append(name)
+
+    norm_cache = {
+        name: normalize_name(name)
+        for name in info
+    }
+
+    updated = 0
+
+    for item in sage_items:
+
+        if item.name_ru:
+            continue
+
+        query = normalize_name(item.name_en)
+
+        if not query:
+            continue
+
+        #
+        # предметы одного слота; для гравировок
+        # и предметов без слота — все подряд
+        #
+
+        if item.slot in ("", None, "Engraving"):
+            pool = list(info)
+
+        else:
+            pool = by_slot.get(item.slot, [])
+
+        best = None
+
+        for candidate in pool:
+
+            ratio = difflib.SequenceMatcher(
+                None,
+                query,
+                norm_cache[candidate],
+            ).ratio()
+
+            if best is None or ratio > best[1]:
+                best = (candidate, ratio)
+
+        if best is None or best[1] < 0.8:
+            continue
+
+        item.name_ru = tag_ru[
+            info[best[0]]["tag"]
+        ]
+
+        item_repo.save([item])
+
+        updated += 1
+
+    return updated
 
 
 def match_items(
@@ -587,8 +704,15 @@ class MgBotSynchronizer:
             ru_index["items"],
         )
 
+        fuzzy_total = fuzzy_match_items(
+            items,
+            en_index["items"],
+            ru_index["items"],
+        )
+
         print(
             f"Items: {ru_total}"
+            f"+{fuzzy_total}"
             f"/{len(items)}"
         )
 
