@@ -48,7 +48,7 @@
                 <td><a href="/items/{{ row.code }}">{{ row.name_ru or row.name_en }}</a></td>
                 <td>{{ row.fighter_type|ru }}</td>
                 <td>{{ row.slot|ru }}</td>
-                <td>{{ row.rarity }}</td>
+                <td class="muted">{{ rarity_ru.get(row.rarity, row.rarity or '') }}</td>
                 <td class="muted">
                     {% if row.min_level or row.max_level %}
                         {{ row.min_level }}–{{ row.max_level }}
