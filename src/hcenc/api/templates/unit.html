@@ -72,25 +72,7 @@
         {% endif %}
     </div>
 
-    <div class="equip-grid">
-        {% for slot in slots %}
-            {% set eq = equipment[slot] %}
-            <div class="equip-cell {% if not eq %}empty{% endif %}">
-                {% if eq %}
-                    <a href="/items/{{ eq.code }}">
-                        <img src="{{ image_url(eq.image_local, eq.source_url) }}" alt="">
-                    </a>
-                    <div class="nm">
-                        <a href="/items/{{ eq.code }}">{{ eq.name_ru or eq.name_en }}</a>
-                    </div>
-                {% else %}
-                    <div class="ph"></div>
-                    <div class="nm muted">пусто</div>
-                {% endif %}
-                <div class="lbl">{{ slot|ru }}</div>
-            </div>
-        {% endfor %}
-    </div>
+    {% include "_equip.html" %}
 
     {% if advice %}
         {% for entry in advice %}

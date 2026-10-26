@@ -181,7 +181,14 @@ class UnitRepository:
                         items.name_ru,
                         items.image,
                         items.source_url,
-                        items.image_local
+                        items.image_local,
+                        items.rarity,
+                        items.min_level,
+                        items.max_level,
+                        items.power_min,
+                        items.power_max,
+                        items.description_ru,
+                        items.description_en
                     FROM unit_items
                     LEFT JOIN items
                         ON items.code = unit_items.item_code
