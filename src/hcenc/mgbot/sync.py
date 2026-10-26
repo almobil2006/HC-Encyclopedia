@@ -789,6 +789,78 @@ def fixup_rarity() -> int:
     return updated
 
 
+def fixup_icons() -> int:
+
+    #
+    # предметам без картинки — иконка их группы
+    # из mg (иконки общие по типу, качаем один раз)
+    #
+
+    ru = mgbot_client.fetch("ru", "index.json")
+    en = mgbot_client.fetch("en", "index.json")
+
+    if not ru or not en:
+        return 0
+
+    def groups_map(index):
+
+        result = {}
+
+        for group in index.get("groups", []):
+
+            ic = group.get("ic")
+
+            name = group.get("n") or ""
+
+            if ic and ic != -1 and name:
+                result[name] = ic
+
+        return result
+
+    ru_icons = groups_map(ru)
+    en_icons = groups_map(en)
+
+    updated = 0
+
+    seen_icons = set()
+
+    for item in item_repo.all():
+
+        if item.image_local:
+            continue
+
+        if item.source_url or item.image:
+            continue
+
+        ic = ru_icons.get(item.name_ru) or en_icons.get(
+            item.name_en
+        )
+
+        if not ic:
+            continue
+
+        if ic not in seen_icons:
+
+            data = mgbot_client.icon(ic)
+
+            if data is None:
+                continue
+
+            seen_icons.add(ic)
+
+        item.image_local = (
+            f"assets/icons/{ic}.png"
+        )
+
+        item_repo.save([item])
+
+        updated += 1
+
+    print(f"Icons downloaded: {len(seen_icons)}")
+
+    return updated
+
+
 class MgBotSynchronizer:
 
     def sync(self) -> int:
@@ -1025,6 +1097,14 @@ class MgBotSynchronizer:
         rarity_total = fixup_rarity()
 
         print(f"Rarity: {rarity_total}")
+
+        #
+        # иконки предметам без картинок
+        #
+
+        icons_total = fixup_icons()
+
+        print(f"Icons: {icons_total}")
 
         return total
 
