@@ -228,6 +228,50 @@ def import_missing_items(
     return imported
 
 
+def extract_abilities(data: dict) -> str:
+
+    #
+    # тексты способностей берём из верхнего
+    # яруса предмета (подставленные значения)
+    #
+
+    tiers = data.get("x", {})
+
+    best_key = None
+
+    for key in tiers:
+
+        try:
+            number = int(key)
+        except ValueError:
+            continue
+
+        if best_key is None or number > best_key:
+            best_key = number
+
+    if best_key is None:
+        return ""
+
+    entry = tiers.get(str(best_key), {})
+
+    texts = []
+
+    for block in entry.get("def", {}).get("common", []):
+
+        text = (
+            block
+            .get("p", {})
+            .get("node", {})
+            .get("t", "")
+        )
+
+        if text and text not in texts:
+            texts.append(text)
+
+    separator = chr(10) + chr(10)
+    return separator.join(texts)
+
+
 def fetch_power(
     sage_items: list,
     en_items: list,
@@ -290,6 +334,11 @@ def fetch_power(
 
         item.power_min = best[0]
         item.power_max = best[1]
+
+        abilities = extract_abilities(data)
+
+        if abilities:
+            item.description_ru = abilities
 
         item_repo.save([item])
 
