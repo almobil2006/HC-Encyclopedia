@@ -551,8 +551,19 @@ def match_engravings() -> int:
         for row in ru.get("engr", [])
     }
 
+    def engr_key(name: str) -> str:
+
+        return normalize_name(
+            re.sub(
+                r"engraving|artifact",
+                "",
+                name,
+                flags=re.IGNORECASE,
+            )
+        )
+
     name_id = {
-        row.get("name"): row["id"]
+        engr_key(row["name"]): row["id"]
         for row in en.get("engr", [])
         if row.get("name")
     }
@@ -567,7 +578,9 @@ def match_engravings() -> int:
         if item.name_ru:
             continue
 
-        engr_id = name_id.get(item.name_en)
+        engr_id = name_id.get(
+            engr_key(item.name_en)
+        )
 
         if not engr_id:
             continue
