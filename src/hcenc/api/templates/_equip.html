@@ -1,0 +1,39 @@
+{% set order = [
+    ("Weapon Soul", "ws"),
+    ("Weapon", "w"),
+    ("Armor Soul", "as"),
+    ("Armor", "ar"),
+    ("Ring", "r"),
+    ("Amulet", "a"),
+    ("Totem", "t"),
+    ("Artifact", "art"),
+] %}
+<div class="equip-grid">
+    {% for slot, area in order %}
+        {% set it = equipment.get(slot) %}
+        <div class="equip-cell {% if not it %}empty{% endif %}" style="grid-area: {{ area }}">
+            {% if it %}
+                {% set src = image_url(it.image_local, it.source_url) %}
+                {% if src %}
+                    <a href="/items/{{ it.code }}"><img src="{{ src }}" alt=""></a>
+                {% else %}
+                    <div class="ph"></div>
+                {% endif %}
+                <div class="tip">
+                    <div class="tip-name">{{ it.name_ru or it.name_en }}</div>
+                    <div class="tip-meta">
+                        {{ slot|ru }}
+                        {% if it.max_level %} · уровень {{ it.max_level }}{% endif %}
+                        {% if it.power_max %} · сила {{ it.power_min }}–{{ it.power_max }}{% endif %}
+                    </div>
+                    {% if it.description_ru or it.description_en %}
+                        <div class="tip-desc">{{ it.description_ru or it.description_en }}</div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="ph"></div>
+            {% endif %}
+            <div class="lbl">{{ slot|ru }}</div>
+        </div>
+    {% endfor %}
+</div>
