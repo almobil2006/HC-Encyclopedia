@@ -3,6 +3,7 @@ import re
 
 from hcenc.db.database import database
 from hcenc.db.item_repository import item_repo
+from hcenc.db.rune_repository import rune_repo
 from hcenc.db.set_repository import set_repo
 from hcenc.mgbot.client import mgbot_client
 from hcenc.models.set import Set
@@ -347,6 +348,50 @@ def fetch_power(
     return updated
 
 
+def match_runes() -> int:
+
+    from hcenc.models.rune import Rune
+
+    en = mgbot_client.fetch("en", "runes.json")
+    ru = mgbot_client.fetch("ru", "runes.json")
+
+    if not en or not ru:
+        return 0
+
+    ru_names = {
+        g["gid"]: g.get("name", "")
+        for g in ru.get("groups", [])
+    }
+
+    name_gid = {
+        g.get("name"): g["gid"]
+        for g in en.get("groups", [])
+        if g.get("name")
+    }
+
+    updated = 0
+
+    for rune in rune_repo.all():
+
+        gid = name_gid.get(rune.name_en)
+
+        if not gid:
+            continue
+
+        ru_name = ru_names.get(gid, "")
+
+        if not ru_name:
+            continue
+
+        rune.name_ru = ru_name
+
+        rune_repo.save([rune])
+
+        updated += 1
+
+    return updated
+
+
 class MgBotSynchronizer:
 
     def sync(self) -> int:
@@ -461,6 +506,14 @@ class MgBotSynchronizer:
         )
 
         print(f"Power: {powered}/{len(items)}")
+
+        #
+        # русские названия рун
+        #
+
+        runes_total = match_runes()
+
+        print(f"Runes: {runes_total}")
 
         return total
 

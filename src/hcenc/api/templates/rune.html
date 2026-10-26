@@ -2,7 +2,9 @@
 {% block title %}{{ rune.name_en }} — руна{% endblock %}
 {% block content %}
     <a class="back" href="/runes">← К рунам</a>
-    <h1>{{ rune.name_en }}</h1>
+    <h1>{{ rune.name_ru or rune.name_en }}
+        {% if rune.name_ru %}<span class="muted" style="font-size:16px">{{ rune.name_en }}</span>{% endif %}
+    </h1>
 
     <div class="detail-grid">
         <div class="panel" style="text-align:center">
