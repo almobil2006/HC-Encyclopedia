@@ -42,7 +42,7 @@
     </div>
     {% for slot, area in order %}
         {% set it = equipment.get(slot) %}
-        <div class="equip-cell {% if not it %}empty{% endif %}" style="grid-area: {{ area }}">
+        <div class="equip-cell {% if not it %}empty{% endif %}{% if it and it.rarity %} r{{ it.rarity }}{% endif %}" style="grid-area: {{ area }}">
             {% if it %}
                 {% set src = image_url(it.image_local, it.source_url) %}
                 {% if src %}
@@ -51,9 +51,10 @@
                     <div class="ph"></div>
                 {% endif %}
                 <div class="tip">
-                    <div class="tip-name">{{ it.name_ru or it.name_en }}</div>
+                    <div class="tip-name{% if it.rarity %} r{{ it.rarity }}{% endif %}">{{ it.name_ru or it.name_en }}</div>
                     <div class="tip-meta">
                         {{ slot|ru }}
+                        {% if it.rarity %} · {{ rarity_ru.get(it.rarity, '') }}{% endif %}
                         {% if it.max_level %} · уровень {{ it.max_level }}{% endif %}
                         {% if it.power_max %} · сила {{ it.power_min }}–{{ it.power_max }}{% endif %}
                     </div>

@@ -724,6 +724,71 @@ def fixup_slots() -> int:
     return fixed
 
 
+def fixup_rarity() -> int:
+
+    #
+    # редкость из каталога mg: для SageHC-предметов
+    # по имени, для импортированных — по id из кода
+    #
+
+    en = mgbot_client.fetch("en", "index.json")
+    ru = mgbot_client.fetch("ru", "index.json")
+
+    if not en or not ru:
+        return 0
+
+    tag_r = {
+        x["tag"]: x.get("r")
+        for x in ru.get("items", [])
+        if x.get("tag") and x.get("r") is not None
+    }
+
+    id_r = {
+        str(x["id"]): x.get("r")
+        for x in ru.get("items", [])
+        if x.get("id") is not None
+        and x.get("r") is not None
+    }
+
+    name_tag = {}
+
+    for x in en.get("items", []):
+
+        name = x.get("n") or ""
+
+        if name and name not in name_tag:
+            name_tag[name] = x["tag"]
+
+    updated = 0
+
+    for item in item_repo.all():
+
+        if item.rarity:
+            continue
+
+        r = None
+
+        if item.code.startswith("M"):
+            r = id_r.get(item.code[1:])
+
+        if r is None:
+            tag = name_tag.get(item.name_en)
+
+            if tag:
+                r = tag_r.get(tag)
+
+        if r is None:
+            continue
+
+        item.rarity = str(r)
+
+        item_repo.save([item])
+
+        updated += 1
+
+    return updated
+
+
 class MgBotSynchronizer:
 
     def sync(self) -> int:
@@ -952,6 +1017,14 @@ class MgBotSynchronizer:
         slots_total = fixup_slots()
 
         print(f"Slots fixed: {slots_total}")
+
+        #
+        # редкость предметов
+        #
+
+        rarity_total = fixup_rarity()
+
+        print(f"Rarity: {rarity_total}")
 
         return total
 
