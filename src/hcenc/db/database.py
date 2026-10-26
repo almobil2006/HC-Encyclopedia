@@ -178,6 +178,7 @@ class Database:
 
             unit_columns = {
                 "set_code": "TEXT DEFAULT ''",
+                "priority": "INTEGER DEFAULT 0",
             }
 
             existing = {

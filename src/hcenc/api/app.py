@@ -535,11 +535,14 @@ def set_detail(
 
 
 @app.get("/units", response_class=HTMLResponse)
-def units_page(request: Request):
+def units_page(
+    request: Request,
+    sort: str = "desc",
+):
 
     units = []
 
-    for unit in unit_repo.all():
+    for unit in unit_repo.all(order=sort):
 
         equipment = unit_repo.equipment(unit.id)
 
@@ -566,6 +569,7 @@ def units_page(request: Request):
                 for s in set_repo.all_sets()
             },
             "owned_sets": set_repo.owned_sets(),
+            "sort": sort if sort in ("asc", "desc") else "desc",
         },
     )
 
@@ -575,6 +579,7 @@ def unit_create(
     name: str = Form(""),
     fighter_type: str = Form(""),
     level: int = Form(0),
+    priority: int = Form(0),
 ):
 
     if name.strip():
@@ -583,7 +588,22 @@ def unit_create(
             name=name.strip(),
             fighter_type=fighter_type,
             level=level or None,
+            priority=priority,
         )
+
+    return RedirectResponse(
+        "/units",
+        status_code=303,
+    )
+
+
+@app.post("/units/{unit_id}/priority")
+def unit_priority(
+    unit_id: int,
+    priority: int = Form(0),
+):
+
+    unit_repo.set_priority(unit_id, priority)
 
     return RedirectResponse(
         "/units",
