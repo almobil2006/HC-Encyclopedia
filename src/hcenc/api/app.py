@@ -143,6 +143,12 @@ templates.env.filters["ru"] = ru
 # Состав сетов из mg-bot: тип элемента -> слот
 #
 
+MGBOT_CLASSES = {
+    1: "Tank",
+    2: "Archer",
+    3: "Mage",
+}
+
 MGBOT_SLOTS = {
     1: "Оружие",
     2: "Броня",
@@ -167,12 +173,23 @@ def mgbot_elements(item) -> list[dict]:
     except ValueError:
         return []
 
+    #
+    # у комплекта бывают вещи разных классов
+    # (оружие лучника + броня танка), поэтому
+    # группируем по слоту И классу
+    #
+
     groups: dict = {}
 
     for element in raw:
 
-        group = groups.setdefault(
+        key = (
             element.get("type"),
+            element.get("battleClass"),
+        )
+
+        group = groups.setdefault(
+            key,
             {
                 "names": [],
                 "rarities": [],
@@ -190,7 +207,13 @@ def mgbot_elements(item) -> list[dict]:
 
     result = []
 
-    for slot_type, group in sorted(groups.items()):
+    for (slot_type, battle_class), group in sorted(
+        groups.items(),
+        key=lambda item: (
+            item[0][0] or 0,
+            item[0][1] or 0,
+        ),
+    ):
 
         rarities = sorted(
             r
@@ -203,6 +226,10 @@ def mgbot_elements(item) -> list[dict]:
                 "slot": MGBOT_SLOTS.get(
                     slot_type,
                     str(slot_type),
+                ),
+                "class": MGBOT_CLASSES.get(
+                    battle_class,
+                    "",
                 ),
                 "name": ", ".join(group["names"]),
                 "rarities": " / ".join(

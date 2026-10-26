@@ -69,10 +69,11 @@
     {% if elements %}
         <h2>Состав сета <span class="muted" style="font-size:13px">(mg-bot)</span></h2>
         <table class="list">
-            <tr><th>Слот</th><th>Предмет</th><th>Редкости</th></tr>
+            <tr><th>Слот</th><th>Класс</th><th>Предмет</th><th>Редкости</th></tr>
             {% for el in elements %}
                 <tr>
                     <td>{{ el.slot }}</td>
+                    <td>{% if el.class %}{{ el.class|ru }}{% else %}<span class="muted">—</span>{% endif %}</td>
                     <td>{{ el.name }}</td>
                     <td class="muted">{{ el.rarities }}</td>
                 </tr>
