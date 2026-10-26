@@ -181,10 +181,24 @@
             gap: 8px;
             margin-bottom: 20px;
             grid-template-areas:
-                "ws w . ."
-                "as ar . ."
+                "ws w set set"
+                "as ar set set"
                 "r a t art";
         }
+        .equip-cell.set-cell {
+            border-style: solid;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .equip-cell.set-cell img {
+            width: 96px; height: 96px;
+        }
+        .equip-cell.set-cell .ph {
+            width: 96px; height: 96px;
+        }
+        .equip-cell.set-cell .nm { margin-top: 4px; }
         .equip-cell {
             position: relative;
             background: var(--panel);
