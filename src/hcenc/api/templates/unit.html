@@ -93,6 +93,10 @@
                 <td>
                     {% if equipped %}
                         <a href="/items/{{ equipped.code }}">{{ equipped.name_ru or equipped.name_en }}</a>
+                        {% set rune_hint = rune_hints.get((slot, unit.fighter_type)) if unit.fighter_type else none %}
+                        {% if rune_hint %}
+                            <div class="muted" style="font-size:12px">руна: {{ rune_hint }}</div>
+                        {% endif %}
                     {% else %}
                         <span class="muted">— пусто —</span>
                     {% endif %}

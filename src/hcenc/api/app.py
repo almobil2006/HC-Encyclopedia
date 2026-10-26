@@ -143,6 +143,19 @@ templates.env.filters["ru"] = ru
 # Состав сетов из mg-bot: тип элемента -> слот
 #
 
+#
+# базовые руны: слот x класс юнита
+#
+
+RUNE_HINTS = {
+    ("Weapon", "Tank"): "Руна силы",
+    ("Weapon", "Archer"): "Руна ловкости",
+    ("Weapon", "Mage"): "Руна мудрости",
+    ("Armor", "Tank"): "Руна стойкости",
+    ("Armor", "Archer"): "Руна ярости",
+    ("Armor", "Mage"): "Руна магии",
+}
+
 MGBOT_CLASSES = {
     1: "Tank",
     2: "Archer",
@@ -586,6 +599,7 @@ def unit_detail(
                 if s.owned
             ],
             "chosen_set": chosen_set,
+            "rune_hints": RUNE_HINTS,
         },
     )
 
