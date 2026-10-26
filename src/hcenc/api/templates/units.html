@@ -56,12 +56,16 @@
                             · сет: {{ set_names.get(entry.unit.set_code, entry.unit.set_code) }}
                         {% endif %}
                     </div>
-                    <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center">
+                    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px">
                         {% for slot, item in entry.equipment.items() %}
                             {% if item %}
-                                <a href="/items/{{ item.code }}" title="{{ slot|ru }}: {{ item.name_ru or item.name_en }}">
-                                    <img class="thumb" src="{{ image_url(item.image_local, item.source_url) }}" alt="">
+                                <a href="/items/{{ item.code }}"
+                                   title="{{ slot|ru }}: {{ item.name_ru or item.name_en }}"
+                                   style="display:flex;align-items:center;justify-content:center;background:var(--panel-2);border:1px solid var(--border);border-radius:6px;min-height:46px">
+                                    <img class="thumb" style="width:34px;height:34px" src="{{ image_url(item.image_local, item.source_url) }}" alt="">
                                 </a>
+                            {% else %}
+                                <div style="border:1px dashed var(--border);border-radius:6px;min-height:46px"></div>
                             {% endif %}
                         {% endfor %}
                     </div>
