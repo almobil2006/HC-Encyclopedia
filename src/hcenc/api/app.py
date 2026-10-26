@@ -85,6 +85,76 @@ templates.env.globals["page_link"] = page_link
 
 
 #
+# База знаний «кому что» (knowledge/recommendations.json)
+#
+
+
+def load_advice() -> list[dict]:
+
+    path = (
+        config.root
+        / "knowledge"
+        / "recommendations.json"
+    )
+
+    if not path.exists():
+        return []
+
+    try:
+
+        data = json.loads(
+            path.read_text(
+                encoding="utf-8",
+            )
+        )
+
+    except ValueError:
+        return []
+
+    entries = []
+
+    for fighter, block in data.items():
+
+        if fighter.startswith("_"):
+            continue
+
+        if not isinstance(block, dict):
+            continue
+
+        entries.append(
+            {
+                "fighter": fighter,
+                "match": [
+                    word.lower()
+                    for word in block.get("match", [])
+                ],
+                "role": block.get("role", ""),
+                "artifact": block.get("artifact", {}),
+                "guardian": block.get("guardian", {}),
+            }
+        )
+
+    return entries
+
+
+ADVICE = load_advice()
+
+
+def advice_for(unit) -> list[dict]:
+
+    name = (unit.name or "").lower()
+
+    return [
+        entry
+        for entry in ADVICE
+        if any(
+            word in name
+            for word in entry["match"]
+        )
+    ]
+
+
+#
 # Перевод игровых терминов. SageHC отдаёт данные
 # только на английском, поэтому классы, слоты и типы
 # переводим словарём, остальное показываем как есть.
@@ -600,6 +670,7 @@ def unit_detail(
             ],
             "chosen_set": chosen_set,
             "rune_hints": RUNE_HINTS,
+            "advice": advice_for(unit),
         },
     )
 

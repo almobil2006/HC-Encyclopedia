@@ -72,6 +72,34 @@
         {% endif %}
     </div>
 
+    {% if advice %}
+        {% for entry in advice %}
+            <div class="panel" style="margin-bottom: 20px; border-left: 3px solid var(--accent)">
+                <h2 style="margin-top:0">Совет: {{ entry.fighter }}</h2>
+                {% if entry.role %}
+                    <p class="muted" style="margin:0 0 10px">{{ entry.role }}</p>
+                {% endif %}
+                {% if entry.artifact and entry.artifact.name %}
+                    <p style="margin:0 0 6px">
+                        Артефакт:
+                        <a href="/items?q={{ entry.artifact.name }}">
+                            <b>{{ entry.artifact.name }}</b></a>
+                        {% if entry.artifact.why %} — {{ entry.artifact.why }}{% endif %}
+                        {% if entry.artifact.alt %}
+                            <span class="muted">(запасной: {{ entry.artifact.alt }})</span>
+                        {% endif %}
+                    </p>
+                {% endif %}
+                {% if entry.guardian and entry.guardian.name %}
+                    <p style="margin:0">
+                        Хранитель: <b>{{ entry.guardian.name }}</b>
+                        {% if entry.guardian.why %} — {{ entry.guardian.why }}{% endif %}
+                    </p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <table class="list">
         <tr>
             <th></th>
