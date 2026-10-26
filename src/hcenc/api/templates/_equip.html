@@ -9,6 +9,37 @@
     ("Artifact", "art"),
 ] %}
 <div class="equip-grid">
+    <div class="equip-cell set-cell" style="grid-area: set">
+        {% if set_obj %}
+            {% set set_src = image_url(set_obj.image_local, set_obj.source_url) %}
+            {% if set_src %}
+                <a href="/sets/{{ set_obj.code }}"><img src="{{ set_src }}" alt=""></a>
+            {% else %}
+                <div class="ph"></div>
+            {% endif %}
+            <div class="nm">
+                <a href="/sets/{{ set_obj.code }}">{{ set_obj.name_ru or set_obj.name_en }}</a>
+            </div>
+            <div class="tip">
+                <div class="tip-name">{{ set_obj.name_ru or set_obj.name_en }}</div>
+                {% if set_obj.bonus_2 %}
+                    <div class="tip-meta">2 предмета</div>
+                    <div class="tip-desc">{{ set_obj.bonus_2 }}</div>
+                {% endif %}
+                {% if set_obj.bonus_4 %}
+                    <div class="tip-meta">4 предмета</div>
+                    <div class="tip-desc">{{ set_obj.bonus_4 }}</div>
+                {% endif %}
+                {% if set_obj.bonus_6 %}
+                    <div class="tip-meta">6 предметов</div>
+                    <div class="tip-desc">{{ set_obj.bonus_6 }}</div>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="ph"></div>
+            <div class="lbl muted">без сета</div>
+        {% endif %}
+    </div>
     {% for slot, area in order %}
         {% set it = equipment.get(slot) %}
         <div class="equip-cell {% if not it %}empty{% endif %}" style="grid-area: {{ area }}">

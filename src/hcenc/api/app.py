@@ -561,6 +561,10 @@ def units_page(request: Request):
                 s.code: (s.name_ru or s.name_en)
                 for s in set_repo.all_sets()
             },
+            "sets_by_code": {
+                s.code: s
+                for s in set_repo.all_sets()
+            },
             "owned_sets": set_repo.owned_sets(),
         },
     )

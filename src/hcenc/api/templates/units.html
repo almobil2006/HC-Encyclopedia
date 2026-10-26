@@ -57,6 +57,7 @@
                         {% endif %}
                     </div>
                     {% set equipment = entry.equipment %}
+                    {% set set_obj = sets_by_code.get(entry.unit.set_code) if entry.unit.set_code else none %}
                     {% include "_equip.html" %}
                     <div class="sub">
                         {{ entry.equipment.values() | selectattr("name_en") | list | length }} из {{ slots | length }} слотов занято
