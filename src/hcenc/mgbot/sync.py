@@ -538,6 +538,54 @@ def format_sentences(text: str) -> str:
     return separator.join(result).strip()
 
 
+def match_engravings() -> int:
+
+    en = mgbot_client.fetch("en", "index.json")
+    ru = mgbot_client.fetch("ru", "index.json")
+
+    if not en or not ru:
+        return 0
+
+    ru_names = {
+        row["id"]: row.get("name", "")
+        for row in ru.get("engr", [])
+    }
+
+    name_id = {
+        row.get("name"): row["id"]
+        for row in en.get("engr", [])
+        if row.get("name")
+    }
+
+    updated = 0
+
+    for item in item_repo.all():
+
+        if item.slot != "Engraving":
+            continue
+
+        if item.name_ru:
+            continue
+
+        engr_id = name_id.get(item.name_en)
+
+        if not engr_id:
+            continue
+
+        ru_name = ru_names.get(engr_id, "")
+
+        if not ru_name:
+            continue
+
+        item.name_ru = ru_name
+
+        item_repo.save([item])
+
+        updated += 1
+
+    return updated
+
+
 class MgBotSynchronizer:
 
     def sync(self) -> int:
@@ -749,6 +797,14 @@ class MgBotSynchronizer:
         runes_total = match_runes()
 
         print(f"Runes: {runes_total}")
+
+        #
+        # гравировки из отдельной секции mg-bot
+        #
+
+        engr_total = match_engravings()
+
+        print(f"Engravings: {engr_total}")
 
         return total
 
