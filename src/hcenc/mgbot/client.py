@@ -84,6 +84,49 @@ class MgBotClient:
 
         return self.fetch(lang, "index.json")
 
+    def icon(
+        self,
+        name: str,
+    ) -> bytes | None:
+
+        #
+        # иконки общие по типу предмета,
+        # кэшируем на диске
+        #
+
+        cache = (
+            app.config.assets / "icons"
+        )
+
+        cache.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
+        target = cache / f"{name}.png"
+
+        if target.exists():
+            return target.read_bytes()
+
+        url = (
+            f"{self.BASE}/icons/{name}.png"
+            "?v=1"
+        )
+
+        response = self.session.get(
+            url,
+            timeout=30,
+        )
+
+        if response.status_code != 200:
+            return None
+
+        target.write_bytes(
+            response.content
+        )
+
+        return response.content
+
     def set_file(
         self,
         lang: str,
