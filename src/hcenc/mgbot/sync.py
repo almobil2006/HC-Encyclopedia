@@ -599,6 +599,131 @@ def match_engravings() -> int:
     return updated
 
 
+#
+# Запасной вариант определения слота по роду
+# оружия в названии (когда предмета нет в mg)
+#
+
+KIND_SLOTS = {
+    "топор": ("Weapon", "Tank"),
+    "секира": ("Weapon", "Tank"),
+    "копьё": ("Weapon", "Tank"),
+    "копье": ("Weapon", "Tank"),
+    "пистолет": ("Weapon", "Archer"),
+    "пистолеты": ("Weapon", "Archer"),
+    "ружьё": ("Weapon", "Archer"),
+    "ружье": ("Weapon", "Archer"),
+    "фонарь": ("Weapon", "Mage"),
+    "лампа": ("Weapon", "Mage"),
+    "книга": ("Weapon", "Mage"),
+    "кинжал": ("Weapon", "Mage"),
+    "кинжалы": ("Weapon", "Mage"),
+    "pistol": ("Weapon", "Archer"),
+    "musket": ("Weapon", "Archer"),
+    "shotgun": ("Weapon", "Archer"),
+    "ax": ("Weapon", "Tank"),
+    "axe": ("Weapon", "Tank"),
+    "spear": ("Weapon", "Tank"),
+    "scythe": ("Weapon", "Tank"),
+    "lantern": ("Weapon", "Mage"),
+    "lamp": ("Weapon", "Mage"),
+    "book": ("Weapon", "Mage"),
+    "dagger": ("Weapon", "Mage"),
+}
+
+ARMOR_WORDS = (
+    "лат", "одеян", "экипировк",
+    "брон", "роб",
+)
+
+
+def fixup_slots() -> int:
+
+    #
+    # предметам без слота: тип и класс из
+    # каталога mg, иначе — по роду оружия
+    #
+
+    en = mgbot_client.fetch("en", "index.json")
+    ru = mgbot_client.fetch("ru", "index.json")
+
+    if not en or not ru:
+        return 0
+
+    tag_info = {
+        x["tag"]: (
+            SLOT_BY_TYPE.get(x.get("t")),
+            CLASS_BY_CODE.get(x.get("c"), ""),
+        )
+        for x in ru.get("items", [])
+        if x.get("tag")
+    }
+
+    name_tag = {}
+
+    for x in en.get("items", []):
+
+        name = x.get("n") or ""
+
+        if name and name not in name_tag:
+            name_tag[name] = x["tag"]
+
+    fixed = 0
+
+    for item in item_repo.all():
+
+        if item.slot:
+            continue
+
+        slot = ""
+        cls = ""
+
+        tag = name_tag.get(item.name_en)
+
+        if tag and tag in tag_info:
+            slot, cls = tag_info[tag]
+
+        if not slot:
+
+            first = (
+                (item.name_ru or item.name_en)
+                .lower()
+                .split(" ")[0]
+            )
+
+            hit = KIND_SLOTS.get(first)
+
+            if hit:
+                slot, cls = hit
+
+            elif first == "душа":
+
+                rest = (item.name_ru or "").lower()
+
+                if any(
+                    word in rest
+                    for word in ARMOR_WORDS
+                ):
+                    slot = "Armor Soul"
+
+                else:
+                    slot = "Weapon Soul"
+
+        if not slot:
+            continue
+
+        item.slot = slot
+
+        if cls:
+            item.fighter_type = cls
+
+        item_repo.save([item])
+
+        fixed += 1
+
+    return fixed
+
+
 class MgBotSynchronizer:
 
     def sync(self) -> int:
@@ -818,6 +943,15 @@ class MgBotSynchronizer:
         engr_total = match_engravings()
 
         print(f"Engravings: {engr_total}")
+
+        #
+        # предметы без слота (фонари, кинжалы,
+        # пистолеты, души...)
+        #
+
+        slots_total = fixup_slots()
+
+        print(f"Slots fixed: {slots_total}")
 
         return total
 

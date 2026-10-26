@@ -10,15 +10,20 @@ from hcenc.models.unit import Unit
 # (души оружия и брони), затем основные шесть
 #
 
+#
+# Порядок как в игре: левый блок 2×2
+# (души + оружие/броня), затем аксессуары
+#
+
 SLOTS = (
     "Weapon Soul",
-    "Armor Soul",
     "Weapon",
+    "Armor Soul",
     "Armor",
     "Ring",
     "Amulet",
-    "Artifact",
     "Totem",
+    "Artifact",
 )
 
 
