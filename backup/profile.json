@@ -1,37 +1,234 @@
 {
   "units": [
     {
-      "id": 2,
-      "name": "Робин Бэд",
-      "fighter_type": "Archer",
-      "level": 100,
-      "set_code": "SET53"
+      "id": 9,
+      "name": "Комплект Ледяного Удильщика",
+      "fighter_type": "Mage",
+      "level": null,
+      "set_code": "SET55",
+      "priority": 20
     },
     {
-      "id": 3,
-      "name": "Ледяной",
+      "id": 8,
+      "name": "Комплект Драконорожденного",
       "fighter_type": "Archer",
-      "level": 100,
-      "set_code": ""
+      "level": null,
+      "set_code": "SET28",
+      "priority": 10
     },
     {
-      "id": 4,
-      "name": "Ice Angler",
-      "fighter_type": "",
-      "level": 100,
-      "set_code": "SET55"
+      "id": 10,
+      "name": "Комплект Мракулы",
+      "fighter_type": "Mage",
+      "level": null,
+      "set_code": "SET45",
+      "priority": 0
+    },
+    {
+      "id": 11,
+      "name": "Комплект Иллюзиониста",
+      "fighter_type": "Mage",
+      "level": null,
+      "set_code": "SET43",
+      "priority": 0
+    },
+    {
+      "id": 12,
+      "name": "Комплект Робин Бэда",
+      "fighter_type": "Archer",
+      "level": null,
+      "set_code": "SET30",
+      "priority": 0
+    },
+    {
+      "id": 13,
+      "name": "Комплект Палача Света",
+      "fighter_type": "Tank",
+      "level": null,
+      "set_code": "SET5",
+      "priority": 0
+    },
+    {
+      "id": 14,
+      "name": "Комплект Палача Тьмы",
+      "fighter_type": "Tank",
+      "level": null,
+      "set_code": "SET3",
+      "priority": 0
+    },
+    {
+      "id": 15,
+      "name": "Комплект Жнеца Душ",
+      "fighter_type": "Mage",
+      "level": null,
+      "set_code": "SET1",
+      "priority": 0
     }
   ],
   "unit_items": [
     {
-      "unit_id": 2,
+      "unit_id": 8,
+      "slot": "Armor Soul",
+      "item_code": "M41067"
+    },
+    {
+      "unit_id": 8,
       "slot": "Weapon",
       "item_code": "G485"
+    },
+    {
+      "unit_id": 8,
+      "slot": "Weapon Soul",
+      "item_code": "M41059"
+    },
+    {
+      "unit_id": 9,
+      "slot": "Weapon",
+      "item_code": "G19"
+    },
+    {
+      "unit_id": 13,
+      "slot": "Amulet",
+      "item_code": "G631"
+    },
+    {
+      "unit_id": 13,
+      "slot": "Armor",
+      "item_code": "G2267"
+    },
+    {
+      "unit_id": 13,
+      "slot": "Armor Soul",
+      "item_code": "M41067"
+    },
+    {
+      "unit_id": 13,
+      "slot": "Artifact",
+      "item_code": "G528"
+    },
+    {
+      "unit_id": 13,
+      "slot": "Ring",
+      "item_code": "G196"
+    },
+    {
+      "unit_id": 13,
+      "slot": "Totem",
+      "item_code": "G2172"
+    },
+    {
+      "unit_id": 13,
+      "slot": "Weapon",
+      "item_code": "G2104"
+    },
+    {
+      "unit_id": 13,
+      "slot": "Weapon Soul",
+      "item_code": "M41051"
+    },
+    {
+      "unit_id": 14,
+      "slot": "Amulet",
+      "item_code": "G2026"
+    },
+    {
+      "unit_id": 14,
+      "slot": "Armor",
+      "item_code": "G1646"
+    },
+    {
+      "unit_id": 14,
+      "slot": "Armor Soul",
+      "item_code": "M313151"
+    },
+    {
+      "unit_id": 14,
+      "slot": "Artifact",
+      "item_code": "M475097"
+    },
+    {
+      "unit_id": 14,
+      "slot": "Ring",
+      "item_code": "G1987"
+    },
+    {
+      "unit_id": 14,
+      "slot": "Totem",
+      "item_code": "G1908"
+    },
+    {
+      "unit_id": 14,
+      "slot": "Weapon",
+      "item_code": "G1599"
+    },
+    {
+      "unit_id": 14,
+      "slot": "Weapon Soul",
+      "item_code": "M41053"
+    },
+    {
+      "unit_id": 15,
+      "slot": "Amulet",
+      "item_code": "G2294"
+    },
+    {
+      "unit_id": 15,
+      "slot": "Armor",
+      "item_code": "G91"
+    },
+    {
+      "unit_id": 15,
+      "slot": "Armor Soul",
+      "item_code": "M41071"
+    },
+    {
+      "unit_id": 15,
+      "slot": "Artifact",
+      "item_code": "G2037"
+    },
+    {
+      "unit_id": 15,
+      "slot": "Ring",
+      "item_code": "M539007"
+    },
+    {
+      "unit_id": 15,
+      "slot": "Totem",
+      "item_code": "M480106"
+    },
+    {
+      "unit_id": 15,
+      "slot": "Weapon Soul",
+      "item_code": "M265002"
     }
   ],
   "owned_items": [
-    "G438",
-    "G468",
-    "G485"
+    "G1563",
+    "G1599",
+    "G1646",
+    "G19",
+    "G1908",
+    "G196",
+    "G1987",
+    "G2026",
+    "G2037",
+    "G2104",
+    "G2172",
+    "G2267",
+    "G2294",
+    "G485",
+    "G528",
+    "G631",
+    "G91",
+    "M265002",
+    "M313151",
+    "M41051",
+    "M41053",
+    "M41059",
+    "M41067",
+    "M41071",
+    "M475097",
+    "M480106",
+    "M539007"
   ]
 }
