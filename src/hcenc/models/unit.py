@@ -28,3 +28,9 @@ class Unit:
     #
 
     set_code: str = ""
+
+    #
+    # приоритет в отряде
+    #
+
+    priority: int = 0

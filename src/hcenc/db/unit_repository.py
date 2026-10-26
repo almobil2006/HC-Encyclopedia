@@ -29,21 +29,36 @@ SLOTS = (
 
 class UnitRepository:
 
-    def all(self) -> list[Unit]:
+    def all(
+        self,
+        order: str = "id",
+    ) -> list[Unit]:
+
+        orders = {
+            "id": "id",
+            "desc": "priority DESC, id",
+            "asc": "priority ASC, id",
+        }
+
+        order_by = orders.get(
+            order,
+            "id",
+        )
 
         with engine.begin() as conn:
 
             rows = conn.execute(
                 text(
-                    """
+                    f"""
                     SELECT
                         id,
                         name,
                         fighter_type,
                         level,
-                        set_code
+                        set_code,
+                        priority
                     FROM units
-                    ORDER BY id
+                    ORDER BY {order_by}
                     """
                 )
             ).mappings()
@@ -68,7 +83,8 @@ class UnitRepository:
                         name,
                         fighter_type,
                         level,
-                        set_code
+                        set_code,
+                        priority
                     FROM units
                     WHERE id=:unit_id
                     """
@@ -88,6 +104,7 @@ class UnitRepository:
         name: str,
         fighter_type: str,
         level: int | None,
+        priority: int = 0,
     ) -> int:
 
         with engine.begin() as conn:
@@ -96,19 +113,42 @@ class UnitRepository:
                 text(
                     """
                     INSERT INTO units
-                        (name, fighter_type, level)
+                        (name, fighter_type, level, priority)
                     VALUES
-                        (:name, :fighter_type, :level)
+                        (:name, :fighter_type, :level, :priority)
                     """
                 ),
                 {
                     "name": name,
                     "fighter_type": fighter_type,
                     "level": level,
+                    "priority": priority,
                 },
             )
 
             return result.lastrowid
+
+    def set_priority(
+        self,
+        unit_id: int,
+        priority: int,
+    ) -> None:
+
+        with engine.begin() as conn:
+
+            conn.execute(
+                text(
+                    """
+                    UPDATE units
+                    SET priority=:priority
+                    WHERE id=:unit_id
+                    """
+                ),
+                {
+                    "unit_id": unit_id,
+                    "priority": priority,
+                },
+            )
 
     def delete(
         self,

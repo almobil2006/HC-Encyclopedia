@@ -1,7 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Отряд — HC Энциклопедия{% endblock %}
 {% block content %}
-    <h1>Мой отряд</h1>
+    <h1>Мой отряд
+        <span style="font-size:13px; font-weight:400; margin-left:10px">
+            {% if sort == "asc" %}
+                <a href="/units?sort=desc">приоритет ↓</a> · <span class="muted">приоритет ↑</span>
+            {% else %}
+                <span class="muted">приоритет ↓</span> · <a href="/units?sort=asc">приоритет ↑</a>
+            {% endif %}
+        </span>
+    </h1>
     <p class="muted">Отметьте предметы «в наличии» в <a href="/items">каталоге</a>, затем собирайте юнитов из имеющегося.</p>
 
     <div class="panel" style="margin-bottom: 20px">
@@ -15,6 +23,7 @@
                 <option value="Archer">Лучник</option>
             </select>
             <input type="number" name="level" min="1" max="100" placeholder="Уровень" style="min-width:110px">
+            <input type="number" name="priority" value="0" placeholder="Приоритет" style="min-width:110px" title="Чем больше число, тем важнее боец">
             <button type="submit">Добавить</button>
         </form>
     </div>
@@ -56,6 +65,16 @@
                             · сет: {{ set_names.get(entry.unit.set_code, entry.unit.set_code) }}
                         {% endif %}
                     </div>
+                    <form method="post" action="/units/{{ entry.unit.id }}/priority"
+                          style="display:flex; gap:6px; align-items:center; justify-content:center">
+                        <label class="muted" style="font-size:12px">приоритет</label>
+                        <input type="number" name="priority" value="{{ entry.unit.priority }}"
+                               style="width:70px; background:var(--panel-2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:4px 6px">
+                        <button type="submit"
+                                style="background:var(--panel-2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:4px 10px; cursor:pointer">
+                            ✓
+                        </button>
+                    </form>
                     {% set equipment = entry.equipment %}
                     {% set set_obj = sets_by_code.get(entry.unit.set_code) if entry.unit.set_code else none %}
                     {% include "_equip.html" %}
