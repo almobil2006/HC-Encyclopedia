@@ -392,6 +392,35 @@ def match_runes() -> int:
     return updated
 
 
+def format_sentences(text: str) -> str:
+
+    #
+    # одно предложение — одна строка;
+    # сокращения вида «4 с.» не рвём
+    #
+
+    flat = re.sub(r"\s+", " ", text).strip()
+
+    parts = re.split(
+        r"(?<=[.!?])\s+(?=[А-ЯЁA-Z0-9])",
+        flat,
+    )
+
+    result = []
+
+    for part in parts:
+
+        if result and result[-1].split()[-1:] in (["с."], ["т."]):
+            result[-1] = result[-1] + " " + part
+
+        else:
+            result.append(part)
+
+    separator = chr(10)
+
+    return separator.join(result).strip()
+
+
 class MgBotSynchronizer:
 
     def sync(self) -> int:
@@ -413,6 +442,16 @@ class MgBotSynchronizer:
         en_sets = {
             x["id"]: x
             for x in en_index["sets"]
+        }
+
+        substances = {
+            str(key): value.get("color")
+            for key, value in (
+                ru_index.get("ascMeta", {})
+                .get("substances", {})
+                .items()
+            )
+            if isinstance(value, dict)
         }
 
         sets = set_repo.all_sets()
@@ -454,6 +493,78 @@ class MgBotSynchronizer:
                 elements,
                 ensure_ascii=False,
             )
+
+            #
+            # русские тексты бонусов 2/4/6
+            #
+
+            if detail and detail.get("set"):
+
+                bonus_fields = {
+                    2: "bonus_2",
+                    4: "bonus_4",
+                    6: "bonus_6",
+                }
+
+                for bonus in detail["set"].get("bonuses", []):
+
+                    field = bonus_fields.get(
+                        bonus.get("count")
+                    )
+
+                    if not field:
+                        continue
+
+                    texts = [
+                        ability.get("t", "")
+                        for ability in bonus.get("abilities", [])
+                        if ability.get("t")
+                    ]
+
+                    if texts:
+
+                        setattr(
+                            item,
+                            field,
+                            format_sentences(" ".join(texts)),
+                        )
+
+                #
+                # русские тексты субстанций
+                #
+
+                colors = substances
+
+                for bonus in (detail.get("asc") or {}).get("bonuses", []):
+
+                    color = colors.get(
+                        str(bonus.get("sub"))
+                    )
+
+                    if not color:
+                        continue
+
+                    field = (
+                        f"substance_{color}_"
+                        f"{bonus.get('count')}"
+                    )
+
+                    if not hasattr(item, field):
+                        continue
+
+                    texts = [
+                        ability.get("t", "")
+                        for ability in bonus.get("abilities", [])
+                        if ability.get("t")
+                    ]
+
+                    if texts:
+
+                        setattr(
+                            item,
+                            field,
+                            format_sentences(" ".join(texts)),
+                        )
 
             set_repo.save_sets([item])
 
