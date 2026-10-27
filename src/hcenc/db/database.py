@@ -274,6 +274,45 @@ class Database:
             )
 
             #
+            # GEM STOCK — склад самоцветов
+            #
+
+            conn.execute(
+                text(
+                    """
+                    CREATE TABLE IF NOT EXISTS gem_stock
+                    (
+                        color INTEGER,
+                        category TEXT,
+                        count INTEGER DEFAULT 0,
+
+                        UNIQUE (color, category)
+                    )
+                    """
+                )
+            )
+
+            #
+            # UNIT GEMS — план самоцветов по слотам юнита
+            #
+
+            conn.execute(
+                text(
+                    """
+                    CREATE TABLE IF NOT EXISTS unit_gems
+                    (
+                        unit_id INTEGER,
+                        slot TEXT,
+                        engr_id INTEGER,
+                        gems_json TEXT,
+
+                        UNIQUE (unit_id, slot)
+                    )
+                    """
+                )
+            )
+
+            #
             # RECOMMENDED ITEMS
             #
 

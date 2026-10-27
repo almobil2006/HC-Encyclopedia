@@ -696,8 +696,131 @@ def gems_page(
         {
             "gems": gems,
             "q": q,
+            "counter": gems_counter(),
         },
     )
+
+
+@app.post("/gems/stock")
+async def gems_stock_save(request: Request):
+
+    from sqlalchemy import text as sql_text
+
+    from hcenc.db.engine import engine
+
+    form = await request.form()
+
+    with engine.begin() as conn:
+
+        for color in range(7):
+
+            for category in ("std", "max"):
+
+                field = f"stock_{color}_{category}"
+
+                count = form.get(field)
+
+                try:
+                    count = int(count or 0)
+                except ValueError:
+                    count = 0
+
+                if count < 0:
+                    count = 0
+
+                conn.execute(
+                    sql_text(
+                        """
+                        INSERT INTO gem_stock
+                            (color, category, count)
+                        VALUES
+                            (:color, :category, :count)
+                        ON CONFLICT (color, category)
+                        DO UPDATE SET count=:count
+                        """
+                    ),
+                    {
+                        "color": color,
+                        "category": category,
+                        "count": count,
+                    },
+                )
+
+    return RedirectResponse(
+        "/gems",
+        status_code=303,
+    )
+
+
+def gems_counter() -> dict:
+
+    #
+    # надетые (из планов юнитов) и склад
+    # по цветам и категориям
+    #
+
+    from sqlalchemy import text as sql_text
+
+    from hcenc.db.engine import engine
+
+    inserted = {}
+    stock = {}
+
+    counter = {"inserted": inserted, "stock": stock}
+
+    with engine.begin() as conn:
+
+        rows = conn.execute(
+            sql_text(
+                """
+                SELECT unit_id, slot, gems_json
+                FROM unit_gems
+                """
+            )
+        ).mappings()
+
+        for row in rows:
+
+            try:
+                gems = json.loads(
+                    row["gems_json"] or "{}"
+                )
+            except ValueError:
+                continue
+
+            for color, categories in gems.items():
+
+                if not isinstance(categories, list):
+                    continue
+
+                inserted[(int(color), "std")] = (
+                    inserted.get((int(color), "std"), 0)
+                    + categories.count("std")
+                )
+
+                inserted[(int(color), "max")] = (
+                    inserted.get((int(color), "max"), 0)
+                    + categories.count("max")
+                )
+
+        stock_rows = conn.execute(
+            sql_text(
+                """
+                SELECT color, category, count
+                FROM gem_stock
+                """
+            )
+        ).mappings()
+
+        for row in stock_rows:
+
+            key = (row["color"], row["category"])
+
+            stock[key] = stock.get(key, 0) + (
+                row["count"] or 0
+            )
+
+    return counter
 
 
 @app.get("/units", response_class=HTMLResponse)
@@ -964,6 +1087,47 @@ def unit_detail(
             for row in rows
         ]
 
+        gem_rows = conn.execute(
+            sql_text(
+                """
+                SELECT id, name, stats
+                FROM gems
+                ORDER BY name
+                """
+            )
+        ).mappings()
+
+        all_gems = [
+            dict(row)
+            for row in gem_rows
+        ]
+
+        gem_plans = conn.execute(
+            sql_text(
+                """
+                SELECT slot, engr_id, gems_json
+                FROM unit_gems
+                WHERE unit_id=:unit_id
+                """
+            ),
+            {"unit_id": unit_id},
+        ).mappings()
+
+        plans = {
+            row["slot"]: {
+                "engr_id": row["engr_id"],
+                "gems": json.loads(
+                    row["gems_json"] or "{}"
+                ),
+            }
+            for row in gem_plans
+        }
+
+    gems_by_id = {
+        g["id"]: g
+        for g in all_gems
+    }
+
     return templates.TemplateResponse(
         request,
         "unit.html",
@@ -983,7 +1147,105 @@ def unit_detail(
             "advice": advice_for(unit),
             "keeper": keeper,
             "all_keepers": all_keepers,
+            "all_gems": all_gems,
+            "gems_by_id": gems_by_id,
+            "gem_plans": plans,
         },
+    )
+
+
+@app.post("/units/{unit_id}/gems/{slot}")
+async def unit_gems_save(
+    unit_id: int,
+    slot: str,
+    request: Request,
+):
+
+    from sqlalchemy import text as sql_text
+
+    from hcenc.db.engine import engine
+
+    form = await request.form()
+
+    engr_id = 0
+
+    try:
+        engr_id = int(form.get("engr_id") or 0)
+    except (ValueError, TypeError):
+        engr_id = 0
+
+    gems = {}
+
+    for color in range(7):
+
+        cats = []
+
+        for category in ("std", "max"):
+
+            field = f"gems_{color}_{category}"
+
+            try:
+                count = int(form.get(field) or 0)
+            except (ValueError, TypeError):
+                count = 0
+
+            cats.extend(
+                [category] * max(0, min(count, 7))
+            )
+
+        if cats:
+            gems[str(color)] = cats
+
+    gems_json = (
+        json.dumps(gems, ensure_ascii=False)
+        if gems
+        else ""
+    )
+
+    with engine.begin() as conn:
+
+        if engr_id and gems_json:
+
+            conn.execute(
+                sql_text(
+                    """
+                    INSERT INTO unit_gems
+                        (unit_id, slot, engr_id, gems_json)
+                    VALUES
+                        (:unit_id, :slot, :engr_id, :gems_json)
+                    ON CONFLICT (unit_id, slot)
+                    DO UPDATE SET
+                        engr_id=:engr_id,
+                        gems_json=:gems_json
+                    """
+                ),
+                {
+                    "unit_id": unit_id,
+                    "slot": slot,
+                    "engr_id": engr_id,
+                    "gems_json": gems_json,
+                },
+            )
+
+        else:
+
+            conn.execute(
+                sql_text(
+                    """
+                    DELETE FROM unit_gems
+                    WHERE unit_id=:unit_id
+                      AND slot=:slot
+                    """
+                ),
+                {
+                    "unit_id": unit_id,
+                    "slot": slot,
+                },
+            )
+
+    return RedirectResponse(
+        f"/units/{unit_id}",
+        status_code=303,
     )
 
 
