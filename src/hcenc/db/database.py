@@ -280,13 +280,16 @@ class Database:
             conn.execute(
                 text(
                     """
-                    CREATE TABLE IF NOT EXISTS gem_stock
+                    DROP TABLE IF EXISTS gem_stock;
+
+                    CREATE TABLE gem_stock
                     (
+                        type INTEGER,
                         color INTEGER,
                         category TEXT,
                         count INTEGER DEFAULT 0,
 
-                        UNIQUE (color, category)
+                        UNIQUE (type, color, category)
                     )
                     """
                 )
