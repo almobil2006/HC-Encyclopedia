@@ -221,6 +221,34 @@ class Database:
             )
 
             #
+            # KEEPERS — хранители
+            #
+
+            conn.execute(
+                text(
+                    """
+                    CREATE TABLE IF NOT EXISTS keepers
+                    (
+                        id INTEGER PRIMARY KEY,
+
+                        name TEXT,
+                        icon TEXT,
+                        image_local TEXT,
+
+                        power INTEGER,
+
+                        obtained TEXT,
+                        abilities TEXT,
+                        stats TEXT,
+                        ranks TEXT,
+
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                    """
+                )
+            )
+
+            #
             # RECOMMENDED ITEMS
             #
 

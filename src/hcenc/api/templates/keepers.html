@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Хранители — HC Encyclopedia{% endblock %}
+{% block content %}
+    <h1>Хранители <span class="muted">({{ keepers | length }})</span></h1>
+
+    <form class="filters" method="get" action="/keepers">
+        <input type="text" name="q" value="{{ q }}" placeholder="Поиск по имени или источнику">
+        <button type="submit">Найти</button>
+    </form>
+
+    <div class="cards">
+        {% for k in keepers %}
+            <div class="card" style="position:relative">
+                {% if k.image_local %}
+                    <img src="/{{ k.image_local }}" alt="" style="width:72px;height:72px;align-self:center">
+                {% endif %}
+                <div class="name">{{ k.name }}</div>
+                <div class="sub">сила <b style="color:#e6c367">{{ k.power }}</b></div>
+
+                {% if k.stats %}
+                    <div class="tip-stats" style="border:none;padding:0">
+                        {% for row in k.stats | fromjson %}
+                            <div class="stat-row">
+                                <span class="muted">{{ row[0] }}</span><b style="color:#e6c367">{{ row[1] }}</b>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if k.abilities %}
+                    <div class="muted" style="font-size:11px; line-height:1.5">
+                        {% for a in k.abilities | fromjson %}
+                            {{ a }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if k.obtained %}
+                    <div class="muted" style="font-size:11px">{{ k.obtained }}</div>
+                {% endif %}
+            </div>
+        {% else %}
+            <p class="muted">Хранители ещё не загружены: выполните <code>hcenc sync keepers</code></p>
+        {% endfor %}
+    </div>
+{% endblock %}
