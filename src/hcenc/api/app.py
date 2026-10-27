@@ -255,15 +255,25 @@ templates.env.globals["stat_ru"] = STAT_RU
 # цвета самоцветов как в игре
 #
 
-GEM_COLORS = [
-    "Фиолетовый",
-    "Зелёный",
-    "Серый",
-    "Красный",
-    "Оранжевый",
-    "Синий",
+GEM_TYPES = [
+    "Броня",
+    "Урон",
+    "Уклонение",
+    "Здоровье",
+    "Сила магии",
+    "Шанс крита",
 ]
 
+GEM_COLORS = [
+    "Серый",
+    "Зелёный",
+    "Синий",
+    "Фиолетовый",
+    "Оранжевый",
+    "Красный",
+]
+
+templates.env.globals["gem_types"] = GEM_TYPES
 templates.env.globals["gem_colors"] = GEM_COLORS
 
 templates.env.filters["fromjson"] = lambda raw: (
@@ -727,39 +737,44 @@ async def gems_stock_save(request: Request):
 
     with engine.begin() as conn:
 
-        for color in range(6):
+        conn.execute(
+            sql_text("DELETE FROM gem_stock")
+        )
 
-            for category in ("std", "max"):
+        for gtype in range(len(GEM_TYPES)):
 
-                field = f"stock_{color}_{category}"
+            for color in range(len(GEM_COLORS)):
 
-                count = form.get(field)
+                for category in ("std", "max"):
 
-                try:
-                    count = int(count or 0)
-                except ValueError:
-                    count = 0
+                    field = f"stock_{gtype}_{color}_{category}"
 
-                if count < 0:
-                    count = 0
+                    count = form.get(field)
 
-                conn.execute(
-                    sql_text(
-                        """
-                        INSERT INTO gem_stock
-                            (color, category, count)
-                        VALUES
-                            (:color, :category, :count)
-                        ON CONFLICT (color, category)
-                        DO UPDATE SET count=:count
-                        """
-                    ),
-                    {
-                        "color": color,
-                        "category": category,
-                        "count": count,
-                    },
-                )
+                    try:
+                        count = int(count or 0)
+                    except ValueError:
+                        count = 0
+
+                    if count <= 0:
+                        continue
+
+                    conn.execute(
+                        sql_text(
+                            """
+                            INSERT INTO gem_stock
+                                (type, color, category, count)
+                            VALUES
+                                (:type, :color, :category, :count)
+                            """
+                        ),
+                        {
+                            "type": gtype,
+                            "color": color,
+                            "category": category,
+                            "count": count,
+                        },
+                    )
 
     return RedirectResponse(
         "/gems",
@@ -798,24 +813,24 @@ def gems_counter() -> dict:
 
             try:
                 gems = json.loads(
-                    row["gems_json"] or "{}"
+                    row["gems_json"] or "[]"
                 )
             except ValueError:
                 continue
 
-            for color, categories in gems.items():
+            for gem in gems:
 
-                if not isinstance(categories, list):
+                if not isinstance(gem, dict):
                     continue
 
-                inserted[(int(color), "std")] = (
-                    inserted.get((int(color), "std"), 0)
-                    + categories.count("std")
+                key = (
+                    gem.get("t"),
+                    gem.get("c"),
+                    gem.get("cat"),
                 )
 
-                inserted[(int(color), "max")] = (
-                    inserted.get((int(color), "max"), 0)
-                    + categories.count("max")
+                inserted[key] = (
+                    inserted.get(key, 0) + 1
                 )
 
         stock_rows = conn.execute(
@@ -829,7 +844,11 @@ def gems_counter() -> dict:
 
         for row in stock_rows:
 
-            key = (row["color"], row["category"])
+            key = (
+                row["type"],
+                row["color"],
+                row["category"],
+            )
 
             stock[key] = stock.get(key, 0) + (
                 row["count"] or 0
@@ -1189,27 +1208,43 @@ async def unit_gems_save(
     except (ValueError, TypeError):
         engr_id = 0
 
-    gems = {}
+    gems = []
 
-    for color in range(6):
+    for index in range(6):
 
-        cats = []
+        gtype = form.get(f"gem_{index}_type")
+        gcolor = form.get(f"gem_{index}_color")
+        gcat = form.get(f"gem_{index}_cat")
 
-        for category in ("std", "max"):
+        if gtype in (None, ""):
+            continue
 
-            field = f"gems_{color}_{category}"
+        try:
+            gtype = int(gtype)
+        except (ValueError, TypeError):
+            continue
 
-            try:
-                count = int(form.get(field) or 0)
-            except (ValueError, TypeError):
-                count = 0
+        if gtype < 0 or gtype >= len(GEM_TYPES):
+            continue
 
-            cats.extend(
-                [category] * max(0, min(count, 6))
-            )
+        try:
+            gcolor = int(gcolor)
+        except (ValueError, TypeError):
+            gcolor = 0
 
-        if cats:
-            gems[str(color)] = cats
+        if gcolor < 0 or gcolor >= len(GEM_COLORS):
+            gcolor = 0
+
+        if gcat not in ("std", "max"):
+            gcat = "std"
+
+        gems.append(
+            {
+                "t": gtype,
+                "c": gcolor,
+                "cat": gcat,
+            }
+        )
 
     gems_json = (
         json.dumps(gems, ensure_ascii=False)

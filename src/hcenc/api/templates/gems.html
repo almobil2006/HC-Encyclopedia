@@ -9,47 +9,47 @@
         увидите силу и способность комбинации.
     </p>
 
-    <h2>Счётчик самоцветов</h2>
-    <table class="list" style="max-width:720px">
+    <h2>Надетые на предметы <span class="muted" style="font-size:13px">(из планов бойцов)</span></h2>
+    <table class="list" style="max-width:900px">
         <tr>
-            <th>Цвет (редкость)</th>
-            <th>Надето · макс</th>
-            <th>Надето · стандарт</th>
-            <th>Склад · макс</th>
-            <th>Склад · стандарт</th>
+            <th>Вид</th>
+            {% for color_name in gem_colors %}<th>{{ color_name }}</th>{% endfor %}
         </tr>
-        {% for color in range(6) %}
+        {% for type_name in gem_types %}
             <tr>
-                <td>{{ gem_colors[color] }}</td>
-                <td><b style="color:#e6c367">{{ counter.inserted.get((color, "max"), 0) }}</b></td>
-                <td><b>{{ counter.inserted.get((color, "std"), 0) }}</b></td>
-                <td><b style="color:#e6c367">{{ counter.stock.get((color, "max"), 0) }}</b></td>
-                <td><b>{{ counter.stock.get((color, "std"), 0) }}</b></td>
+                <td><b>{{ type_name }}</b></td>
+                {% for color_name in gem_colors %}
+                    <td class="muted">
+                        {{ counter.inserted.get((loop.parent.loop.index0, loop.index0, "max"), 0) }} /
+                        {{ counter.inserted.get((loop.parent.loop.index0, loop.index0, "std"), 0) }}
+                    </td>
+                {% endfor %}
             </tr>
         {% endfor %}
     </table>
+    <p class="muted" style="font-size:12px">в ячейке: максимально прокаченных / стандартных</p>
 
-    <h2>Мой склад</h2>
-    <form method="post" action="/gems/stock" style="max-width:720px">
-        <table class="list">
+    <h2>Мой склад <span class="muted" style="font-size:13px">(введите количество, формат: макс / стандарт)</span></h2>
+    <form method="post" action="/gems/stock">
+        <table class="list" style="max-width:900px">
             <tr>
-                <th>Цвет</th>
-                <th>Максимально прокачен</th>
-                <th>Стандартный</th>
+                <th>Вид</th>
+                {% for color_name in gem_colors %}<th>{{ color_name }}</th>{% endfor %}
             </tr>
-            {% for color in range(6) %}
+            {% for type_name in gem_types %}
                 <tr>
-                    <td>{{ gem_colors[color] }}</td>
-                    <td>
-                        <input type="number" min="0" name="stock_{{ color }}_max"
-                               value="{{ counter.stock.get((color, 'max'), 0) }}"
-                               style="width:80px">
-                    </td>
-                    <td>
-                        <input type="number" min="0" name="stock_{{ color }}_std"
-                               value="{{ counter.stock.get((color, 'std'), 0) }}"
-                               style="width:80px">
-                    </td>
+                    <td><b>{{ type_name }}</b></td>
+                    {% for color_name in gem_colors %}
+                        <td>
+                            <input type="number" min="0" style="width:52px"
+                                   name="stock_{{ loop.parent.loop.index0 }}_{{ loop.index0 }}_max"
+                                   value="{{ counter.stock.get((loop.parent.loop.index0, loop.index0, 'max'), 0) }}">
+                            /
+                            <input type="number" min="0" style="width:52px"
+                                   name="stock_{{ loop.parent.loop.index0 }}_{{ loop.index0 }}_std"
+                                   value="{{ counter.stock.get((loop.parent.loop.index0, loop.index0, 'std'), 0) }}">
+                        </td>
+                    {% endfor %}
                 </tr>
             {% endfor %}
         </table>

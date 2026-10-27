@@ -175,35 +175,58 @@
                             {% endfor %}
                         </select>
 
-                        {% for color in range(6) %}
-                            <span class="muted" style="font-size:11px">{{ gem_colors[color] }}:</span>
-                            <input type="number" min="0" max="7" name="gems_{{ color }}_std"
-                                   title="стандартных"
-                                   value="{{ plan.gems.get(color | string, []) | select('equalto', 'std') | list | length if plan else 0 }}"
-                                   style="width:52px">
-                            <input type="number" min="0" max="7" name="gems_{{ color }}_max"
-                                   title="максимально прокаченных"
-                                   value="{{ plan.gems.get(color | string, []) | select('equalto', 'max') | list | length if plan else 0 }}"
-                                   style="width:52px">
+                                                {% for index in range(6) %}
+                            {% set g = plan.gems[index] if plan and plan.gems | length > index else none %}
+                            <div style="display:flex; gap:6px; align-items:center; width:100%; margin-top:4px">
+                                <span class="muted" style="font-size:11px; min-width:22px">№{{ index + 1 }}</span>
+                                <select name="gem_{{ index }}_type" style="min-width:150px">
+                                    <option value="">— пусто —</option>
+                                    {% for type_name in gem_types %}
+                                        <option value="{{ loop.index0 }}"
+                                            {% if g and g.t == loop.index0 %}selected{% endif %}>
+                                            {{ type_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <select name="gem_{{ index }}_color" style="min-width:120px">
+                                    {% for color_name in gem_colors %}
+                                        <option value="{{ loop.index0 }}"
+                                            {% if g and g.c == loop.index0 %}selected{% endif %}>
+                                            {{ color_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <select name="gem_{{ index }}_cat" style="min-width:120px">
+                                    <option value="std" {% if g and g.cat == "std" %}selected{% endif %}>стандарт</option>
+                                    <option value="max" {% if g and g.cat == "max" %}selected{% endif %}>макс. прокачен</option>
+                                </select>
+                            </div>
                         {% endfor %}
 
-                        <button type="submit">Сохранить</button>
+                        <button type="submit" style="margin-top:6px">Сохранить</button>
                     </div>
 
                     {% if plan and plan.engr_id and gems_by_id.get(plan.engr_id) %}
-                        {% set worst = plan.gems.keys() | map('int') | select('gt', -1) | list %}
                         {% set engr = gems_by_id[plan.engr_id] %}
                         {% if engr.stats %}
-                            <div class="muted" style="font-size:12px; margin-top:6px">
-                                {% for block in engr.stats | fromjson %}
-                                    {% if worst and block.rarity == (worst | min) %}
-                                        стат при худшем самоцвете ({{ block.rarity }}):
-                                        {% for row in block.rows %}
-                                            {{ stat_ru.get(row[0], row[0]) }} {{ row[1] }}{% if not loop.last %}; {% endif %}
-                                        {% endfor %}
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
+                            {% set ns = namespace(worst=none) %}
+                            {% for gem in plan.gems %}
+                                {% if ns.worst is none or gem.c < ns.worst %}
+                                    {% set ns.worst = gem.c %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if ns.worst is not none %}
+                                <div class="muted" style="font-size:12px; margin-top:6px">
+                                    {% for block in engr.stats | fromjson %}
+                                        {% if block.rarity == ns.worst %}
+                                            стат при худшем самоцвете ({{ gem_colors[ns.worst] }}):
+                                            {% for row in block.rows %}
+                                                {{ stat_ru.get(row[0], row[0]) }} {{ row[1] }}{% if not loop.last %}; {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         {% endif %}
                     {% endif %}
                 </form>
