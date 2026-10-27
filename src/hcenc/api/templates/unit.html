@@ -143,6 +143,74 @@
         {% endif %}
     </div>
 
+    <div class="panel" style="margin-bottom: 20px">
+        <h2 style="margin-top:0">Самоцветы
+            <span class="muted" style="font-size:12px">
+                до 7 слотов на предмете, один — пустая заглушка
+            </span>
+        </h2>
+
+        {% for slot in slots %}
+            {% set eq = equipment[slot] %}
+            {% set plan = gem_plans.get(slot) %}
+            <div style="border-top:1px solid var(--border); padding:10px 0">
+                <form method="post" action="/units/{{ unit.id }}/gems/{{ slot }}">
+                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+                        <b style="min-width:110px">{{ slot|ru }}</b>
+                        {% if eq %}
+                            <span class="muted" style="font-size:12px">{{ eq.name_ru or eq.name_en }}</span>
+                        {% else %}
+                            <span class="muted" style="font-size:12px">слот пуст</span>
+                        {% endif %}
+                    </div>
+
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px">
+                        <select name="engr_id" style="max-width:280px">
+                            <option value="0">— без гравировки —</option>
+                            {% for g in all_gems %}
+                                <option value="{{ g.id }}"
+                                    {% if plan and plan.engr_id == g.id %}selected{% endif %}>
+                                    {{ g.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        {% for color in range(7) %}
+                            <span class="muted" style="font-size:11px">{{ color }}:</span>
+                            <input type="number" min="0" max="7" name="gems_{{ color }}_std"
+                                   title="стандартных"
+                                   value="{{ plan.gems.get(color | string, []) | select('equalto', 'std') | list | length if plan else 0 }}"
+                                   style="width:52px">
+                            <input type="number" min="0" max="7" name="gems_{{ color }}_max"
+                                   title="максимально прокаченных"
+                                   value="{{ plan.gems.get(color | string, []) | select('equalto', 'max') | list | length if plan else 0 }}"
+                                   style="width:52px">
+                        {% endfor %}
+
+                        <button type="submit">Сохранить</button>
+                    </div>
+
+                    {% if plan and plan.engr_id and gems_by_id.get(plan.engr_id) %}
+                        {% set worst = plan.gems.keys() | map('int') | select('gt', -1) | list %}
+                        {% set engr = gems_by_id[plan.engr_id] %}
+                        {% if engr.stats %}
+                            <div class="muted" style="font-size:12px; margin-top:6px">
+                                {% for block in engr.stats | fromjson %}
+                                    {% if worst and block.rarity == (worst | min) %}
+                                        стат при худшем самоцвете ({{ block.rarity }}):
+                                        {% for row in block.rows %}
+                                            {{ stat_ru.get(row[0], row[0]) }} {{ row[1] }}{% if not loop.last %}; {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+
     <table class="list">
         <tr>
             <th></th>

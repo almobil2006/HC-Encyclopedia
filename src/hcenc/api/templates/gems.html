@@ -9,6 +9,53 @@
         увидите силу и способность комбинации.
     </p>
 
+    <h2>Счётчик самоцветов</h2>
+    <table class="list" style="max-width:720px">
+        <tr>
+            <th>Цвет (редкость)</th>
+            <th>Надето · макс</th>
+            <th>Надето · стандарт</th>
+            <th>Склад · макс</th>
+            <th>Склад · стандарт</th>
+        </tr>
+        {% for color in range(7) %}
+            <tr>
+                <td>{{ color }}</td>
+                <td><b style="color:#e6c367">{{ counter.inserted.get((color, "max"), 0) }}</b></td>
+                <td><b>{{ counter.inserted.get((color, "std"), 0) }}</b></td>
+                <td><b style="color:#e6c367">{{ counter.stock.get((color, "max"), 0) }}</b></td>
+                <td><b>{{ counter.stock.get((color, "std"), 0) }}</b></td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Мой склад</h2>
+    <form method="post" action="/gems/stock" style="max-width:720px">
+        <table class="list">
+            <tr>
+                <th>Цвет</th>
+                <th>Максимально прокачен</th>
+                <th>Стандартный</th>
+            </tr>
+            {% for color in range(7) %}
+                <tr>
+                    <td>{{ color }}</td>
+                    <td>
+                        <input type="number" min="0" name="stock_{{ color }}_max"
+                               value="{{ counter.stock.get((color, 'max'), 0) }}"
+                               style="width:80px">
+                    </td>
+                    <td>
+                        <input type="number" min="0" name="stock_{{ color }}_std"
+                               value="{{ counter.stock.get((color, 'std'), 0) }}"
+                               style="width:80px">
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <button type="submit" style="margin-top:10px">Сохранить склад</button>
+    </form>
+
     <form class="filters" method="get" action="/gems">
         <input type="text" name="q" value="{{ q }}" placeholder="Поиск по названию">
         <button type="submit">Найти</button>
