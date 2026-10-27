@@ -55,7 +55,7 @@
         <div class="panel">
             {% for row in item.stats_json | fromjson %}
                 <div class="stat-row" style="display:flex; justify-content:space-between; gap:12px; padding:3px 0; border-bottom:1px solid var(--border)">
-                    <span>{{ row[0] }}</span><b style="color:#e6c367">{{ row[1] }}</b>
+                    <span>{{ stat_ru.get(row[0], row[0]) }}</span><b style="color:#e6c367">{{ row[1] }}</b>
                 </div>
             {% endfor %}
         </div>
