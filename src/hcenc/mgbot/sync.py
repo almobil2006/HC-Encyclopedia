@@ -346,6 +346,24 @@ def import_missing_items(
     return imported
 
 
+def clean_txt(text: str) -> str:
+
+    #
+    # тексты игры приходят с unity-тегами цвета
+    # и литеральными переносами строк — чистим как mg
+    #
+
+    text = re.sub(
+        r"</?color[^>]*>",
+        "",
+        text,
+    )
+
+    text = text.replace(chr(92) + chr(110), chr(10))
+
+    return text.strip()
+
+
 def extract_abilities(data: dict) -> str:
 
     #
@@ -383,8 +401,10 @@ def extract_abilities(data: dict) -> str:
             .get("t", "")
         )
 
-        if text and text not in texts:
-            texts.append(text)
+        if text:
+            text = clean_txt(text)
+            if text and text not in texts:
+                texts.append(text)
 
     separator = chr(10) + chr(10)
     return separator.join(texts)
@@ -1089,10 +1109,12 @@ class MgBotSynchronizer:
                         continue
 
                     texts = [
-                        ability.get("t", "")
+                        clean_txt(ability.get("t", ""))
                         for ability in bonus.get("abilities", [])
                         if ability.get("t")
                     ]
+
+                    texts = [x for x in texts if x]
 
                     if texts:
 
@@ -1126,10 +1148,12 @@ class MgBotSynchronizer:
                         continue
 
                     texts = [
-                        ability.get("t", "")
+                        clean_txt(ability.get("t", ""))
                         for ability in bonus.get("abilities", [])
                         if ability.get("t")
                     ]
+
+                    texts = [x for x in texts if x]
 
                     if texts:
 
