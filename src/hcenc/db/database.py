@@ -179,6 +179,7 @@ class Database:
             unit_columns = {
                 "set_code": "TEXT DEFAULT ''",
                 "priority": "INTEGER DEFAULT 0",
+                "keeper_id": "INTEGER",
             }
 
             existing = {
@@ -241,6 +242,30 @@ class Database:
                         abilities TEXT,
                         stats TEXT,
                         ranks TEXT,
+
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                    """
+                )
+            )
+
+            #
+            # GEMS — гравировки (самоцветы)
+            #
+
+            conn.execute(
+                text(
+                    """
+                    CREATE TABLE IF NOT EXISTS gems
+                    (
+                        id INTEGER PRIMARY KEY,
+
+                        name TEXT,
+                        icon TEXT,
+                        image_local TEXT,
+
+                        stats TEXT,
+                        levels TEXT,
 
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )

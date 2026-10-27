@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Самоцветы (гравировки) — HC Encyclopedia{% endblock %}
+{% block content %}
+    <h1>Самоцветы <span class="muted">({{ gems | length }})</span></h1>
+
+    <p class="muted">
+        Гравировка — контейнер на предмете. Качество задаёт худший вставленный самоцвет,
+        уровень (1–3) открывается суммой статов самоцветов. Выберите уровень и редкость —
+        увидите силу и способность комбинации.
+    </p>
+
+    <form class="filters" method="get" action="/gems">
+        <input type="text" name="q" value="{{ q }}" placeholder="Поиск по названию">
+        <button type="submit">Найти</button>
+    </form>
+
+    {% for g in gems %}
+        <div class="panel" style="margin-bottom: 18px">
+            <div style="display:flex; gap:16px; align-items:flex-start">
+                {% if g.image_local %}
+                    <img src="/{{ g.image_local }}" style="width:64px;height:64px" alt="">
+                {% endif %}
+                <div style="flex:1">
+                    <div><b>{{ g.name }}</b></div>
+
+                    {% if g.stats %}
+                        <div class="tip-stats" style="border:none;padding:0;margin-top:6px">
+                            {% for block in g.stats | fromjson %}
+                                <div class="stat-row">
+                                    <span class="muted">редкость {{ block.rarity }}:</span>
+                                    <span>
+                                        {% for row in block.rows %}
+                                            {{ row[0] }} <b style="color:#e6c367">{{ row[1] }}</b>{% if not loop.last %}; {% endif %}
+                                        {% endfor %}
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if g.levels %}
+                        <table class="list" style="margin-top:10px">
+                            <tr>
+                                <th>Уровень</th>
+                                <th>Редкость</th>
+                                <th>Сила</th>
+                                <th>Способность</th>
+                            </tr>
+                            {% for level in g.levels | fromjson %}
+                                {% for cell in level.rar %}
+                                    <tr>
+                                        <td class="muted">{% if loop.first %}{{ level.level }}{% endif %}</td>
+                                        <td>{{ cell.r }}</td>
+                                        <td class="muted">{{ cell.pow }}</td>
+                                        <td style="font-size:12px">{{ cell.ab }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        </table>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p class="muted">Гравировки ещё не загружены: выполните <code>hcenc sync gems</code></p>
+    {% endfor %}
+{% endblock %}

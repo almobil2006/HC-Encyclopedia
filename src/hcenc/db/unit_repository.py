@@ -56,7 +56,8 @@ class UnitRepository:
                         fighter_type,
                         level,
                         set_code,
-                        priority
+                        priority,
+                        keeper_id
                     FROM units
                     ORDER BY {order_by}
                     """
@@ -84,7 +85,8 @@ class UnitRepository:
                         fighter_type,
                         level,
                         set_code,
-                        priority
+                        priority,
+                        keeper_id
                     FROM units
                     WHERE id=:unit_id
                     """
@@ -127,6 +129,47 @@ class UnitRepository:
             )
 
             return result.lastrowid
+
+    def keeper_names(self) -> list[dict]:
+
+        with engine.begin() as conn:
+
+            rows = conn.execute(
+                text(
+                    """
+                    SELECT id, name, power
+                    FROM keepers
+                    ORDER BY power DESC
+                    """
+                )
+            ).mappings()
+
+            return [
+                dict(row)
+                for row in rows
+            ]
+
+    def set_keeper(
+        self,
+        unit_id: int,
+        keeper_id: int | None,
+    ) -> None:
+
+        with engine.begin() as conn:
+
+            conn.execute(
+                text(
+                    """
+                    UPDATE units
+                    SET keeper_id=:keeper_id
+                    WHERE id=:unit_id
+                    """
+                ),
+                {
+                    "unit_id": unit_id,
+                    "keeper_id": keeper_id,
+                },
+            )
 
     def set_priority(
         self,

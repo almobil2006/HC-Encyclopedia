@@ -1404,3 +1404,140 @@ def sync_keepers() -> int:
             total += 1
 
     return total
+
+
+def sync_gems() -> int:
+
+    from sqlalchemy import text as sql_text
+
+    from hcenc.db.engine import engine
+
+    database.initialize()
+
+    index = mgbot_client.fetch("ru", "index.json")
+    unit_stat = (
+        (index or {}).get("enums", {}).get("unitStat", {})
+    )
+
+    def stat_name(sid):
+
+        en = unit_stat.get(str(sid), str(sid))
+
+        return STAT_RU.get(en, en)
+
+    engrs = (index or {}).get("engr", [])
+
+    total = 0
+
+    with engine.begin() as conn:
+
+        for meta in engrs:
+
+            gid = meta.get("id")
+
+            if gid is None:
+                continue
+
+            data = mgbot_client.fetch(
+                "ru",
+                f"engr/e{gid}.json",
+            )
+
+            engr = (
+                data or {}
+            ).get("engr")
+
+            if not engr:
+                continue
+
+            stats = []
+
+            for block in engr.get("stats", []):
+
+                rows = [
+                    [
+                        stat_name(cell.get("stat")),
+                        f"+{cell.get('value')}",
+                    ]
+                    for cell in block.get("list", [])
+                    if cell.get("stat") is not None
+                ]
+
+                if rows:
+                    stats.append(
+                        {
+                            "rarity": block.get("rarity"),
+                            "rows": rows,
+                        }
+                    )
+
+            levels = []
+
+            for level in engr.get("levels", []):
+
+                rar = []
+
+                for cell in level.get("byRarity", []):
+
+                    abilities = cell.get("abilities", [])
+
+                    text = (
+                        abilities[0].get("t", "")
+                        if abilities
+                        else ""
+                    )
+
+                    rar.append(
+                        {
+                            "r": cell.get("rarity"),
+                            "pow": cell.get("power"),
+                            "ab": clean_txt(text),
+                        }
+                    )
+
+                levels.append(
+                    {
+                        "level": level.get("level"),
+                        "rar": rar,
+                    }
+                )
+
+            icon = engr.get("icon") or ""
+
+            if icon:
+                mgbot_client.icon(icon)
+
+            conn.execute(
+                sql_text(
+                    """
+                    INSERT OR REPLACE INTO gems
+                        (id, name, icon, image_local,
+                         stats, levels)
+                    VALUES
+                        (:id, :name, :icon, :image_local,
+                         :stats, :levels)
+                    """
+                ),
+                {
+                    "id": gid,
+                    "name": engr.get("name", ""),
+                    "icon": icon,
+                    "image_local": (
+                        f"assets/icons/{icon}.png"
+                        if icon
+                        else ""
+                    ),
+                    "stats": json.dumps(
+                        stats,
+                        ensure_ascii=False,
+                    ),
+                    "levels": json.dumps(
+                        levels,
+                        ensure_ascii=False,
+                    ),
+                },
+            )
+
+            total += 1
+
+    return total
