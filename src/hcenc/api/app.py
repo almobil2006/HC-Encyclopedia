@@ -646,6 +646,60 @@ def keepers_page(
     )
 
 
+@app.get("/gems", response_class=HTMLResponse)
+def gems_page(
+    request: Request,
+    q: str = "",
+):
+
+    from sqlalchemy import text as sql_text
+
+    from hcenc.db.engine import engine
+
+    conditions = []
+    params: dict = {}
+
+    if q:
+        conditions.append("lower(name) LIKE :q")
+        params["q"] = f"%{q.lower()}%"
+
+    where = (
+        "WHERE " + " AND ".join(conditions)
+        if conditions
+        else ""
+    )
+
+    with engine.begin() as conn:
+
+        rows = conn.execute(
+            sql_text(
+                f"""
+                SELECT
+                    id, name, icon, image_local,
+                    stats, levels
+                FROM gems
+                {where}
+                ORDER BY name
+                """
+            ),
+            params,
+        ).mappings()
+
+        gems = [
+            dict(row)
+            for row in rows
+        ]
+
+    return templates.TemplateResponse(
+        request,
+        "gems.html",
+        {
+            "gems": gems,
+            "q": q,
+        },
+    )
+
+
 @app.get("/units", response_class=HTMLResponse)
 def units_page(
     request: Request,
@@ -679,6 +733,12 @@ def units_page(
             "sets_by_code": {
                 s.code: s
                 for s in set_repo.all_sets()
+            },
+            "keeper_names": {
+                k["id"]: k["name"]
+                for k in (
+                    unit_repo.keeper_names()
+                )
             },
             "owned_sets": set_repo.owned_sets(),
             "sort": sort if sort in ("asc", "desc") else "desc",
@@ -862,6 +922,48 @@ def unit_detail(
 
     all_sets = set_repo.all_sets()
 
+    from sqlalchemy import text as sql_text
+
+    from hcenc.db.engine import engine
+
+    keeper = None
+
+    if unit.keeper_id:
+
+        with engine.begin() as conn:
+
+            row = conn.execute(
+                sql_text(
+                    """
+                    SELECT
+                        id, name, icon, image_local,
+                        power, stats
+                    FROM keepers
+                    WHERE id=:keeper_id
+                    """
+                ),
+                {"keeper_id": unit.keeper_id},
+            ).mappings().first()
+
+        keeper = dict(row) if row else None
+
+    with engine.begin() as conn:
+
+        rows = conn.execute(
+            sql_text(
+                """
+                SELECT id, name, power
+                FROM keepers
+                ORDER BY power DESC
+                """
+            )
+        ).mappings()
+
+        all_keepers = [
+            dict(row)
+            for row in rows
+        ]
+
     return templates.TemplateResponse(
         request,
         "unit.html",
@@ -879,7 +981,26 @@ def unit_detail(
             "chosen_set": chosen_set,
             "rune_hints": RUNE_HINTS,
             "advice": advice_for(unit),
+            "keeper": keeper,
+            "all_keepers": all_keepers,
         },
+    )
+
+
+@app.post("/units/{unit_id}/keeper")
+def unit_keeper(
+    unit_id: int,
+    keeper_id: int = Form(0),
+):
+
+    unit_repo.set_keeper(
+        unit_id,
+        keeper_id or None,
+    )
+
+    return RedirectResponse(
+        f"/units/{unit_id}",
+        status_code=303,
     )
 
 

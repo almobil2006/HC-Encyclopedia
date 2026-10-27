@@ -65,6 +65,9 @@
                         {% if entry.unit.set_code %}
                             · сет: {{ set_names.get(entry.unit.set_code, entry.unit.set_code) }}
                         {% endif %}
+                        {% if entry.unit.keeper_id %}
+                            · хранитель: {{ keeper_names.get(entry.unit.keeper_id, entry.unit.keeper_id) }}
+                        {% endif %}
                     </div>
                     <form method="post" action="/units/{{ entry.unit.id }}/priority"
                           style="display:flex; gap:6px; align-items:center; justify-content:center">

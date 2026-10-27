@@ -105,6 +105,44 @@
         {% endfor %}
     {% endif %}
 
+    <div class="panel" style="margin-bottom: 20px">
+        <h2 style="margin-top:0">Хранитель</h2>
+        <form method="post" action="/units/{{ unit.id }}/keeper" class="filters" style="margin:0">
+            <select name="keeper_id">
+                <option value="0">— без хранителя —</option>
+                {% for k in all_keepers %}
+                    <option value="{{ k.id }}" {% if unit.keeper_id == k.id %}selected{% endif %}>
+                        {{ k.name }} ({{ k.power }})
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit">Сохранить</button>
+        </form>
+
+        {% if keeper %}
+            <div style="margin-top:14px; display:flex; gap:16px; align-items:flex-start">
+                {% if keeper.image_local %}
+                    <img src="/{{ keeper.image_local }}" style="width:72px;height:72px" alt="">
+                {% endif %}
+                <div style="flex:1">
+                    <div><b>{{ keeper.name }}</b>
+                        <span class="muted">· сила {{ keeper.power }}</span>
+                    </div>
+                    {% if keeper.stats %}
+                        <div class="tip-stats" style="border:none;padding:0;margin-top:6px">
+                            {% for row in keeper.stats | fromjson %}
+                                <div class="stat-row">
+                                    <span class="muted">{{ row[0] }}</span>
+                                    <b style="color:#e6c367">{{ row[1] }}</b>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
     <table class="list">
         <tr>
             <th></th>

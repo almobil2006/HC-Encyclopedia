@@ -38,7 +38,8 @@ def export():
                         fighter_type,
                         level,
                         set_code,
-                        priority
+                        priority,
+                        keeper_id
                     FROM units
                     ORDER BY priority DESC, id
                     """
@@ -129,9 +130,9 @@ def import_profile():
                 text(
                     """
                     INSERT OR REPLACE INTO units
-                        (id, name, fighter_type, level, set_code, priority)
+                        (id, name, fighter_type, level, set_code, priority, keeper_id)
                     VALUES
-                        (:id, :name, :fighter_type, :level, :set_code, :priority)
+                        (:id, :name, :fighter_type, :level, :set_code, :priority, :keeper_id)
                     """
                 ),
                 unit,

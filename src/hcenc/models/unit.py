@@ -34,3 +34,9 @@ class Unit:
     #
 
     priority: int = 0
+
+    #
+    # прикреплённый хранитель
+    #
+
+    keeper_id: int | None = None
