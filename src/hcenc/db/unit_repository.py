@@ -228,6 +228,8 @@ class UnitRepository:
                         items.power_min,
                         items.power_max,
                         items.stats_json,
+                        items.fighter_type,
+                        items.rarity,
                         items.description_ru,
                         items.description_en
                     FROM unit_items
