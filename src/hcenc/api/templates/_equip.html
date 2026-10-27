@@ -42,6 +42,7 @@
     </div>
     {% for slot, area in order %}
         {% set it = equipment.get(slot) %}
+        {% set p = plans_by_slot.get(slot) if plans_by_slot is defined else none %}
         <div class="equip-cell {% if not it %}empty{% endif %}{% if it and it.rarity %} r{{ it.rarity }}{% endif %}" style="grid-area: {{ area }}">
             {% if it %}
                 {% set src = image_url(it.image_local, it.source_url) %}
@@ -49,6 +50,14 @@
                     <a href="/items/{{ it.code }}"><img src="{{ src }}" alt=""></a>
                 {% else %}
                     <div class="ph"></div>
+                {% endif %}
+                {% if p and p.gems %}
+                    <div class="gem-row">
+                        {% for gem in p.gems %}
+                            <span class="gem-micro{% if gem.cat == 'max' %} gmax{% endif %} gc{{ gem.c }}"
+                                  title="{{ gem_types[gem.t] }} · {{ gem_colors[gem.c] }} · {{ 'макс' if gem.cat == 'max' else 'станд' }}"></span>
+                        {% endfor %}
+                    </div>
                 {% endif %}
                 <div class="tip">
                     <div class="tip-name{% if it.rarity %} r{{ it.rarity }}{% endif %}">{{ it.name_ru or it.name_en }}</div>
@@ -58,6 +67,16 @@
                         {% if it.max_level %} · уровень {{ it.max_level }}{% endif %}
                         {% if it.power_max %} · сила {{ it.power_min }}–{{ it.power_max }}{% endif %}
                     </div>
+                    {% if p and p.gems %}
+                        <div class="tip-stats">
+                            {% for gem in p.gems %}
+                                <div class="stat-row">
+                                    <span>{{ gem_types[gem.t] }}</span>
+                                    <b>{{ gem_colors[gem.c] }} · {{ 'макс' if gem.cat == 'max' else 'станд' }}</b>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     {% if it.stats_json %}
                         <div class="tip-stats">
                             {% for row in it.stats_json | fromjson %}

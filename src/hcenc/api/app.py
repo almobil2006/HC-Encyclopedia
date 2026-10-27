@@ -859,6 +859,44 @@ def gems_counter() -> dict:
     return counter
 
 
+def load_gem_plans() -> dict:
+
+    from sqlalchemy import text as sql_text
+
+    from hcenc.db.engine import engine
+
+    with engine.begin() as conn:
+
+        rows = conn.execute(
+            sql_text(
+                """
+                SELECT unit_id, slot, engr_id, gems_json
+                FROM unit_gems
+                """
+            )
+        ).mappings()
+
+        result = {}
+
+        for row in rows:
+
+            try:
+                gems = json.loads(
+                    row["gems_json"] or "[]"
+                )
+            except ValueError:
+                gems = []
+
+            result.setdefault(
+                row["unit_id"], {}
+            )[row["slot"]] = {
+                "engr_id": row["engr_id"],
+                "gems": gems,
+            }
+
+    return result
+
+
 @app.get("/units", response_class=HTMLResponse)
 def units_page(
     request: Request,
@@ -899,6 +937,7 @@ def units_page(
                     unit_repo.keeper_names()
                 )
             },
+            "plans_by_unit": load_gem_plans(),
             "owned_sets": set_repo.owned_sets(),
             "sort": sort if sort in ("asc", "desc") else "desc",
         },

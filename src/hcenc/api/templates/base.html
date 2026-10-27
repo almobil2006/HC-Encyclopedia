@@ -239,6 +239,27 @@
         .tip-name.r8 { color: #2ec4b6; }
         .tip-name.r9 { color: #e0655f; }
 
+        .gem-row {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 3px;
+        }
+        .gem-micro {
+            width: 11px; height: 11px;
+            display: inline-block;
+            clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+            background: #8a8f98;
+        }
+        .gem-micro.gc0 { background: #8a8f98; }
+        .gem-micro.gc1 { background: #5ba861; }
+        .gem-micro.gc2 { background: #3b7dd8; }
+        .gem-micro.gc3 { background: #9a6fc0; }
+        .gem-micro.gc4 { background: #d4a643; }
+        .gem-micro.gc5 { background: #e0655f; }
+        .gem-micro.gmax { filter: drop-shadow(0 0 2px rgba(255,255,255,.9)); }
+
         .tip {
             display: none;
             position: absolute;
