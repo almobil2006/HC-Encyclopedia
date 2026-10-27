@@ -50,6 +50,17 @@
         </div>
     </div>
 
+    {% if item.stats_json %}
+        <h2>Статы</h2>
+        <div class="panel">
+            {% for row in item.stats_json | fromjson %}
+                <div class="stat-row" style="display:flex; justify-content:space-between; gap:12px; padding:3px 0; border-bottom:1px solid var(--border)">
+                    <span>{{ row[0] }}</span><b style="color:#e6c367">{{ row[1] }}</b>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {% if item.description_ru or item.description_en %}
         <h2>Способность</h2>
         <div class="bonus" style="white-space:pre-wrap">{{ item.description_ru or item.description_en }}</div>

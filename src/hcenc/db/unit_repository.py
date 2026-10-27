@@ -227,6 +227,7 @@ class UnitRepository:
                         items.max_level,
                         items.power_min,
                         items.power_max,
+                        items.stats_json,
                         items.description_ru,
                         items.description_en
                     FROM unit_items
