@@ -836,7 +836,7 @@ def gems_counter() -> dict:
         stock_rows = conn.execute(
             sql_text(
                 """
-                SELECT color, category, count
+                SELECT type, color, category, count
                 FROM gem_stock
                 """
             )
