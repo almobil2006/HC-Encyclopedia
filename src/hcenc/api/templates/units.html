@@ -81,6 +81,7 @@
                     </form>
                     {% set equipment = entry.equipment %}
                     {% set set_obj = sets_by_code.get(entry.unit.set_code) if entry.unit.set_code else none %}
+                    {% set plans_by_slot = plans_by_unit.get(entry.unit.id, {}) %}
                     {% include "_equip.html" %}
                     <div class="sub">
                         {{ entry.equipment.values() | selectattr("name_en") | list | length }} из {{ slots | length }} слотов занято
