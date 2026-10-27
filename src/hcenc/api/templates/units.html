@@ -68,6 +68,10 @@
                         {% if entry.unit.keeper_id %}
                             · хранитель: {{ keeper_names.get(entry.unit.keeper_id, entry.unit.keeper_id) }}
                         {% endif %}
+                        {% if gem_power.get(entry.unit.id) %}
+                            · 💎 сила самоцветов:
+                            <b style="color:#e6c367">+{{ gem_power.get(entry.unit.id) | num }}</b>
+                        {% endif %}
                     </div>
                     <form method="post" action="/units/{{ entry.unit.id }}/priority"
                           style="display:flex; gap:6px; align-items:center; justify-content:center">

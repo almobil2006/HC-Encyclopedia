@@ -922,6 +922,19 @@ def units_page(
             }
         )
 
+    gem_power = {}
+
+    for unit_id, slot_plans in load_gem_plans().items():
+
+        total = 0
+
+        for plan in slot_plans.values():
+
+            for gem in plan.get("gems", []):
+                total += gem.get("v", 0) or 0
+
+        gem_power[unit_id] = total
+
     return templates.TemplateResponse(
         request,
         "units.html",
@@ -944,6 +957,7 @@ def units_page(
                 )
             },
             "plans_by_unit": load_gem_plans(),
+            "gem_power": gem_power,
             "owned_sets": set_repo.owned_sets(),
             "sort": sort if sort in ("asc", "desc") else "desc",
         },
