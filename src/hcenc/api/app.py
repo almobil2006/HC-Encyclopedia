@@ -225,6 +225,32 @@ RARITY_RU = {
 
 templates.env.globals["rarity_ru"] = RARITY_RU
 
+#
+# имена статов (как в игре)
+#
+
+STAT_RU = {
+    "HEALTH": "здоровье",
+    "PHYSICAL_ARMOR": "физ. броня",
+    "MAGICAL_ARMOR": "маг. броня",
+    "CRITICAL_CHANCE": "шанс крита",
+    "DODGE": "уклонение",
+    "RESISTANCE": "сопротивление",
+    "ACCURACY": "точность",
+    "PHYSICAL_DISRUPTION": "физ. пробитие",
+    "MAGICAL_DISRUPTION": "маг. пробитие",
+    "CRIT_POWER": "сила крита",
+    "FORTITUDE": "стойкость",
+    "PIERCE": "разрыв",
+    "MAGIC_PIERCE": "маг. разрыв",
+    "MAGIC": "сила магии",
+    "SPEED": "скорость",
+    "RADIUS": "радиус",
+    "FIGHTER": "уровень бойца",
+}
+
+templates.env.globals["stat_ru"] = STAT_RU
+
 templates.env.filters["fromjson"] = lambda raw: (
     json.loads(raw)
     if raw

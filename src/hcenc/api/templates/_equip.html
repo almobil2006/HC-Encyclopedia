@@ -62,7 +62,7 @@
                         <div class="tip-stats">
                             {% for row in it.stats_json | fromjson %}
                                 <div class="stat-row">
-                                    <span>{{ row[0] }}</span><b>{{ row[1] }}</b>
+                                    <span>{{ stat_ru.get(row[0], row[0]) }}</span><b>{{ row[1] }}</b>
                                 </div>
                             {% endfor %}
                         </div>
