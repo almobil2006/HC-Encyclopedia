@@ -278,6 +278,12 @@ GEM_COLORS = [
 templates.env.globals["gem_types"] = GEM_TYPES
 templates.env.globals["gem_colors"] = GEM_COLORS
 
+templates.env.filters["num"] = lambda v: (
+    "{:,}".format(int(v)).replace(",", " ")
+    if isinstance(v, int)
+    else (v or "")
+)
+
 templates.env.filters["fromjson"] = lambda raw: (
     json.loads(raw)
     if raw
@@ -1279,11 +1285,17 @@ async def unit_gems_save(
         if gcat not in ("std", "max"):
             gcat = "std"
 
+        try:
+            gvalue = int(form.get(f"gem_{index}_value") or 0)
+        except (ValueError, TypeError):
+            gvalue = 0
+
         gems.append(
             {
                 "t": gtype,
                 "c": gcolor,
                 "cat": gcat,
+                "v": max(0, gvalue),
             }
         )
 
