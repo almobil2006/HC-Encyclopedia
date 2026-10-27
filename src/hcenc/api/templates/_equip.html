@@ -55,7 +55,7 @@
                     <div class="gem-row">
                         {% for gem in p.gems %}
                             <span class="gem-micro{% if gem.cat == 'max' %} gmax{% endif %} gc{{ gem.c }}"
-                                  title="{{ gem_types[gem.t] }} · {{ gem_colors[gem.c] }} · {{ 'макс' if gem.cat == 'max' else 'станд' }}"></span>
+                                  title="{{ gem_types[gem.t] }} · {{ gem_colors[gem.c] }} · {{ 'макс' if gem.cat == 'max' else 'станд' }}{% if gem.v %} · +{{ gem.v | num }}{% endif %}"></span>
                         {% endfor %}
                     </div>
                 {% endif %}
@@ -72,7 +72,7 @@
                             {% for gem in p.gems %}
                                 <div class="stat-row">
                                     <span>{{ gem_types[gem.t] }}</span>
-                                    <b>{{ gem_colors[gem.c] }} · {{ 'макс' if gem.cat == 'max' else 'станд' }}</b>
+                                    <b>{% if gem.v %}+{{ gem.v | num }} · {% endif %}{{ gem_colors[gem.c] }} · {{ 'макс' if gem.cat == 'max' else 'станд' }}</b>
                                 </div>
                             {% endfor %}
                         </div>

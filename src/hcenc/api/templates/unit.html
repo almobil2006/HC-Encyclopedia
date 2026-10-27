@@ -201,6 +201,11 @@
                                     <option value="std" {% if g and g.cat == "std" %}selected{% endif %}>стандарт</option>
                                     <option value="max" {% if g and g.cat == "max" %}selected{% endif %}>макс. прокачен</option>
                                 </select>
+                                <input type="number" min="0" name="gem_{{ index }}_value"
+                                       title="значение силы самоцвета"
+                                       placeholder="сила"
+                                       value="{{ g.v if g and g.v else '' }}"
+                                       style="width:90px">
                             </div>
                         {% endfor %}
 
