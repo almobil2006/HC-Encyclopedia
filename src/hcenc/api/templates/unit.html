@@ -95,7 +95,9 @@
                 {% endif %}
                 {% if entry.guardian and entry.guardian.name %}
                     <p style="margin:0">
-                        Хранитель: <b>{{ entry.guardian.name }}</b>
+                        Хранитель:
+                        <a href="/keepers?q={{ entry.guardian.name }}">
+                            <b>{{ entry.guardian.name }}</b></a>
                         {% if entry.guardian.why %} — {{ entry.guardian.why }}{% endif %}
                     </p>
                 {% endif %}

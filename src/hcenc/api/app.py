@@ -583,6 +583,69 @@ def set_detail(
     )
 
 
+@app.get("/keepers", response_class=HTMLResponse)
+def keepers_page(
+    request: Request,
+    q: str = "",
+):
+
+    from sqlalchemy import text as sql_text
+
+    from hcenc.db.engine import engine
+
+    conditions = []
+    params: dict = {}
+
+    if q:
+        conditions.append(
+            "(lower(name) LIKE :q"
+            " OR lower(obtained) LIKE :q)"
+        )
+        params["q"] = f"%{q.lower()}%"
+
+    where = (
+        "WHERE " + " AND ".join(conditions)
+        if conditions
+        else ""
+    )
+
+    with engine.begin() as conn:
+
+        rows = conn.execute(
+            sql_text(
+                f"""
+                SELECT
+                    id,
+                    name,
+                    icon,
+                    image_local,
+                    power,
+                    obtained,
+                    abilities,
+                    stats
+                FROM keepers
+                {where}
+                ORDER BY power DESC
+                """
+            ),
+            params,
+        ).mappings()
+
+        keepers = [
+            dict(row)
+            for row in rows
+        ]
+
+    return templates.TemplateResponse(
+        request,
+        "keepers.html",
+        {
+            "keepers": keepers,
+            "q": q,
+        },
+    )
+
+
 @app.get("/units", response_class=HTMLResponse)
 def units_page(
     request: Request,

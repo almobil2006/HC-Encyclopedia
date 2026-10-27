@@ -3,7 +3,7 @@ import typer
 from hcenc.sage.sync_items import sync_items
 from hcenc.sage.sync_item_details import sync_item_details
 from hcenc.sage.sync_runes import sync_runes
-from hcenc.mgbot.sync import sync_mgbot
+from hcenc.mgbot.sync import sync_keepers, sync_mgbot
 from hcenc.sage.sync_sets import sync_sets
 from hcenc.sage.sync_set_details import sync_set_details
 from hcenc.sage.sync_set_images import sync_set_images
@@ -139,6 +139,17 @@ def set_images():
 def recommended_item_images():
 
     total = sync_recommended_item_images.sync()
+
+    print()
+
+    print(f"Downloaded: {total}")
+
+
+@app.command("keepers")
+def keepers():
+    """Хранители с mg-bot.ru."""
+
+    total = sync_keepers()
 
     print()
 

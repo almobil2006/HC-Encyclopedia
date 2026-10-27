@@ -1272,3 +1272,133 @@ class MgBotSynchronizer:
 
 
 sync_mgbot = MgBotSynchronizer()
+
+
+STAT_RU = {
+    "HEALTH": "здоровье",
+    "PHYSICAL_ARMOR": "физ. броня",
+    "MAGICAL_ARMOR": "маг. броня",
+    "CRITICAL_CHANCE": "шанс крита",
+    "DODGE": "уклонение",
+    "RESISTANCE": "сопротивление",
+    "ACCURACY": "точность",
+    "PHYSICAL_DISRUPTION": "физ. пробитие",
+    "MAGICAL_DISRUPTION": "маг. пробитие",
+    "CRIT_POWER": "сила крита",
+    "FORTITUDE": "стойкость",
+    "PIERCE": "разрыв",
+    "MAGIC_PIERCE": "маг. разрыв",
+    "MAGIC": "сила магии",
+    "SPEED": "скорость",
+    "RADIUS": "радиус",
+    "FIGHTER": "уровень бойца",
+}
+
+
+def sync_keepers() -> int:
+
+    from sqlalchemy import text as sql_text
+
+    database.initialize()
+
+    ru = mgbot_client.fetch("ru", "keepers.json")
+    index = mgbot_client.fetch("ru", "index.json")
+
+    if not ru:
+        print("keepers.json недоступен")
+        return 0
+
+    unit_stat = (
+        (index or {}).get("enums", {}).get("unitStat", {})
+    )
+
+    def stat_name(sid):
+
+        en = unit_stat.get(str(sid), str(sid))
+
+        return STAT_RU.get(en, en)
+
+    total = 0
+
+    with engine.begin() as conn:
+
+        for k in ru.get("kp", []):
+
+            ranks = k.get("ranks", [])
+
+            top = ranks[-1] if ranks else {}
+
+            stats = [
+                [
+                    stat_name(row[0]),
+                    f"+{row[1]}",
+                ]
+                for row in top.get("st", [])
+                if len(row) >= 2
+            ]
+
+            abilities = [
+                pair[1]
+                for pair in k.get("abv", [])
+                if len(pair) >= 2
+            ]
+
+            obtained = "; ".join(
+                pair[1]
+                for pair in k.get("obt", [])
+                if len(pair) >= 2
+            )
+
+            icon = k.get("ic") or ""
+
+            if icon:
+                mgbot_client.icon(icon)
+
+            conn.execute(
+                sql_text(
+                    """
+                    INSERT OR REPLACE INTO keepers
+                        (id, name, icon, image_local,
+                         power, obtained, abilities,
+                         stats, ranks)
+                    VALUES
+                        (:id, :name, :icon, :image_local,
+                         :power, :obtained, :abilities,
+                         :stats, :ranks)
+                    """
+                ),
+                {
+                    "id": k.get("id"),
+                    "name": k.get("n", ""),
+                    "icon": icon,
+                    "image_local": (
+                        f"assets/icons/{icon}.png"
+                        if icon
+                        else ""
+                    ),
+                    "power": top.get("pow"),
+                    "obtained": obtained,
+                    "abilities": json.dumps(
+                        abilities,
+                        ensure_ascii=False,
+                    ),
+                    "stats": json.dumps(
+                        stats,
+                        ensure_ascii=False,
+                    ),
+                    "ranks": json.dumps(
+                        [
+                            {
+                                "r": r.get("r"),
+                                "pow": r.get("pow"),
+                            }
+                            for r in ranks
+                        ],
+                        ensure_ascii=False,
+                    ),
+                },
+            )
+
+            total += 1
+
+    return total
