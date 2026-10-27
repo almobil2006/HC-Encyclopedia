@@ -279,9 +279,13 @@ class Database:
 
             conn.execute(
                 text(
-                    """
-                    DROP TABLE IF EXISTS gem_stock;
+                    "DROP TABLE IF EXISTS gem_stock"
+                )
+            )
 
+            conn.execute(
+                text(
+                    """
                     CREATE TABLE gem_stock
                     (
                         type INTEGER,
