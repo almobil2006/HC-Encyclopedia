@@ -390,10 +390,135 @@ def extract_abilities(data: dict) -> str:
     return separator.join(texts)
 
 
+def extract_stats(
+    data: dict,
+    unit_stat: dict,
+) -> list:
+
+    #
+    # статы верхнего яруса: базовые и
+    # дополнительные, как их показывает mg
+    #
+
+    tiers = data.get("x", {})
+
+    best_key = None
+
+    for key in tiers:
+
+        try:
+            number = int(key)
+        except ValueError:
+            continue
+
+        if best_key is None or number > best_key:
+            best_key = number
+
+    if best_key is None:
+        return []
+
+    top = tiers[str(best_key)]
+
+    def_ = top.get("def", {})
+
+    def stat_name(sid):
+
+        return unit_stat.get(
+            str(sid),
+            f"стат {sid}",
+        )
+
+    def rng(r):
+
+        if not r:
+            return None
+
+        if r[0] == r[1]:
+            return str(r[0])
+
+        return f"{r[0]}–{r[1]}"
+
+    rows = []
+
+    blocks = (
+        def_.get("base") or []
+    ) + (
+        def_.get("extra") or []
+    )
+
+    for entry in blocks:
+
+        if not isinstance(entry, dict):
+            continue
+
+        p = entry.get("p", {})
+
+        kind = p.get("kind")
+
+        if kind == 1:
+
+            if p.get("absMin") is not None:
+
+                lo, hi = p["absMin"], p.get("absMax")
+
+                value = (
+                    f"+{lo}"
+                    if lo == hi
+                    else f"{lo}–{hi}"
+                )
+
+            elif p.get("abs") is not None:
+                value = f"+{p['abs']}"
+
+            elif p.get("relMin") is not None:
+
+                lo = round(p["relMin"] * 100)
+                hi = p.get("relMax")
+
+                value = (
+                    f"+{lo}%"
+                    if hi is None or lo == round(hi * 100)
+                    else f"{lo}%–{round(hi * 100)}%"
+                )
+
+            elif p.get("rel") is not None:
+                value = f"+{round(p['rel'] * 100)}%"
+
+            else:
+                continue
+
+            rows.append(
+                [
+                    stat_name(p.get("stat")),
+                    value,
+                ]
+            )
+
+        elif kind == 3:
+
+            lo = rng(p.get("loRange"))
+            hi = rng(p.get("hiRange"))
+
+            if not lo and not hi and p.get("range"):
+                lo = str(p["range"][0])
+                hi = str(p["range"][1])
+
+            if lo and hi:
+                rows.append(
+                    ["урон", f"от {lo} до {hi}"]
+                )
+
+            elif lo or hi:
+                rows.append(["урон", lo or hi])
+
+    return rows
+
+
 def fetch_power(
     sage_items: list,
     en_items: list,
     ru_items: list,
+    unit_stat: dict | None = None,
 ) -> int:
 
     tag_g = {
@@ -452,6 +577,14 @@ def fetch_power(
 
         item.power_min = best[0]
         item.power_max = best[1]
+
+        if unit_stat:
+            stats = extract_stats(data, unit_stat)
+            if stats:
+                item.stats_json = json.dumps(
+                    stats,
+                    ensure_ascii=False,
+                )
 
         abilities = extract_abilities(data)
 
@@ -1061,6 +1194,11 @@ class MgBotSynchronizer:
             items,
             en_index["items"],
             ru_index["items"],
+            unit_stat=(
+                ru_index.get("enums", {}).get(
+                    "unitStat"
+                )
+            ),
         )
 
         print(f"Power: {powered}/{len(items)}")

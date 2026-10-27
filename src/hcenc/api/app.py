@@ -225,6 +225,12 @@ RARITY_RU = {
 
 templates.env.globals["rarity_ru"] = RARITY_RU
 
+templates.env.filters["fromjson"] = lambda raw: (
+    json.loads(raw)
+    if raw
+    else []
+)
+
 
 #
 # Состав сетов из mg-bot: тип элемента -> слот

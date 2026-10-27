@@ -105,6 +105,12 @@ class Item:
     power_max: int | None = None
 
     #
+    # статы (json: [[имя, значение], ...])
+    #
+
+    stats_json: str = ""
+
+    #
     # инвентарь игрока
     #
 

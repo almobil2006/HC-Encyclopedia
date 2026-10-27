@@ -58,6 +58,15 @@
                         {% if it.max_level %} · уровень {{ it.max_level }}{% endif %}
                         {% if it.power_max %} · сила {{ it.power_min }}–{{ it.power_max }}{% endif %}
                     </div>
+                    {% if it.stats_json %}
+                        <div class="tip-stats">
+                            {% for row in it.stats_json | fromjson %}
+                                <div class="stat-row">
+                                    <span>{{ row[0] }}</span><b>{{ row[1] }}</b>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     {% if it.description_ru or it.description_en %}
                         <div class="tip-desc">{{ it.description_ru or it.description_en }}</div>
                     {% endif %}

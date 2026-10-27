@@ -61,6 +61,8 @@ _INSERT = text(
         power_min,
         power_max,
 
+        stats_json,
+
         owned
     )
     VALUES
@@ -115,6 +117,8 @@ _INSERT = text(
 
         :power_min,
         :power_max,
+
+        :stats_json,
 
         :owned
     )
@@ -201,6 +205,8 @@ class ItemRepository:
                         power_min,
                         power_max,
 
+                        stats_json,
+
                         owned
                     FROM items
                     ORDER BY
@@ -278,6 +284,8 @@ class ItemRepository:
 
                         power_min,
                         power_max,
+
+                        stats_json,
 
                         owned
                     FROM items
@@ -460,6 +468,8 @@ class ItemRepository:
                         power_min,
                         power_max,
 
+                        stats_json,
+
                         owned
 
                     FROM items
@@ -589,7 +599,8 @@ class ItemRepository:
                         image_local,
 
                         power_min,
-                        power_max
+                        power_max,
+                        stats_json
                     FROM items
                     {where}
                     {order}
