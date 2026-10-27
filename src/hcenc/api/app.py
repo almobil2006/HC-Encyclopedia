@@ -251,6 +251,21 @@ STAT_RU = {
 
 templates.env.globals["stat_ru"] = STAT_RU
 
+#
+# цвета самоцветов как в игре
+#
+
+GEM_COLORS = [
+    "Фиолетовый",
+    "Зелёный",
+    "Серый",
+    "Красный",
+    "Оранжевый",
+    "Синий",
+]
+
+templates.env.globals["gem_colors"] = GEM_COLORS
+
 templates.env.filters["fromjson"] = lambda raw: (
     json.loads(raw)
     if raw
@@ -712,7 +727,7 @@ async def gems_stock_save(request: Request):
 
     with engine.begin() as conn:
 
-        for color in range(7):
+        for color in range(6):
 
             for category in ("std", "max"):
 
@@ -1176,7 +1191,7 @@ async def unit_gems_save(
 
     gems = {}
 
-    for color in range(7):
+    for color in range(6):
 
         cats = []
 
@@ -1190,7 +1205,7 @@ async def unit_gems_save(
                 count = 0
 
             cats.extend(
-                [category] * max(0, min(count, 7))
+                [category] * max(0, min(count, 6))
             )
 
         if cats:
