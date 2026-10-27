@@ -18,9 +18,9 @@
             <th>Склад · макс</th>
             <th>Склад · стандарт</th>
         </tr>
-        {% for color in range(7) %}
+        {% for color in range(6) %}
             <tr>
-                <td>{{ color }}</td>
+                <td>{{ gem_colors[color] }}</td>
                 <td><b style="color:#e6c367">{{ counter.inserted.get((color, "max"), 0) }}</b></td>
                 <td><b>{{ counter.inserted.get((color, "std"), 0) }}</b></td>
                 <td><b style="color:#e6c367">{{ counter.stock.get((color, "max"), 0) }}</b></td>
@@ -37,9 +37,9 @@
                 <th>Максимально прокачен</th>
                 <th>Стандартный</th>
             </tr>
-            {% for color in range(7) %}
+            {% for color in range(6) %}
                 <tr>
-                    <td>{{ color }}</td>
+                    <td>{{ gem_colors[color] }}</td>
                     <td>
                         <input type="number" min="0" name="stock_{{ color }}_max"
                                value="{{ counter.stock.get((color, 'max'), 0) }}"
