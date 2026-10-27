@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Отряд — HC Энциклопедия{% endblock %}
 {% block content %}
-    <h1>Мой отряд
+    <h1><a href="/units/analysis" style="font-size:16px; vertical-align:middle">📊 Анализ</a>
+        Мой отряд
         <span style="font-size:13px; font-weight:400; margin-left:10px">
             {% if sort == "asc" %}
                 <a href="/units?sort=desc">приоритет ↓</a> · <span class="muted">приоритет ↑</span>

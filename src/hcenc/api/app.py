@@ -623,6 +623,78 @@ def units_page(
     )
 
 
+@app.get("/units/analysis", response_class=HTMLResponse)
+def units_analysis(request: Request):
+
+    #
+    # отчёт по отряду: сила, пустые слоты,
+    # предметы чужого класса
+    #
+
+    report = []
+
+    total_power = 0
+    total_empty = 0
+    total_mismatch = 0
+
+    for unit in unit_repo.all():
+
+        equipment = unit_repo.equipment(unit.id)
+
+        power = 0
+        empty = []
+        mismatch = []
+
+        for slot in SLOTS:
+
+            item = equipment.get(slot)
+
+            if item is None:
+                empty.append(slot)
+                continue
+
+            if item.power_max:
+                power += item.power_max
+
+            if (
+                item.fighter_type
+                and unit.fighter_type
+                and item.fighter_type != unit.fighter_type
+            ):
+                mismatch.append(slot)
+
+        total_power += power
+        total_empty += len(empty)
+        total_mismatch += len(mismatch)
+
+        chosen_set = (
+            set_repo.get_set(unit.set_code)
+            if unit.set_code
+            else None
+        )
+
+        report.append(
+            {
+                "unit": unit,
+                "power": power,
+                "empty": empty,
+                "mismatch": mismatch,
+                "set": chosen_set,
+            }
+        )
+
+    return templates.TemplateResponse(
+        request,
+        "analysis.html",
+        {
+            "report": report,
+            "total_power": total_power,
+            "total_empty": total_empty,
+            "total_mismatch": total_mismatch,
+        },
+    )
+
+
 @app.post("/units")
 def unit_create(
     name: str = Form(""),

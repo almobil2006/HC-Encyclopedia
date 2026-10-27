@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Анализ отряда — HC Encyclopedia{% endblock %}
+{% block content %}
+    <a class="back" href="/units">← К отряду</a>
+    <h1>Анализ отряда</h1>
+
+    <div class="stat-cards" style="margin-bottom: 24px">
+        <div class="stat-card">
+            <div class="num">{{ report | length }}</div>
+            <div class="label">Бойцов</div>
+        </div>
+        <div class="stat-card">
+            <div class="num" style="color:#e6c367">{{ total_power }}</div>
+            <div class="label">Суммарная сила</div>
+        </div>
+        <div class="stat-card">
+            <div class="num" style="color:#e0655f">{{ total_empty }}</div>
+            <div class="label">Пустых слотов</div>
+        </div>
+        <div class="stat-card">
+            <div class="num" style="color:#bd96e0">{{ total_mismatch }}</div>
+            <div class="label">Чужих предметов</div>
+        </div>
+    </div>
+
+    <table class="list">
+        <tr>
+            <th>Боец</th>
+            <th>Класс</th>
+            <th>Сет</th>
+            <th>Сила</th>
+            <th>Пустые слоты</th>
+            <th>Чужие предметы</th>
+        </tr>
+        {% for row in report %}
+            <tr>
+                <td>
+                    <a href="/units/{{ row.unit.id }}">{{ row.unit.name }}</a>
+                    <div class="muted" style="font-size:11px">приоритет {{ row.unit.priority }}</div>
+                </td>
+                <td>{{ row.unit.fighter_type|ru }}</td>
+                <td>
+                    {% if row.set %}
+                        <a href="/sets/{{ row.set.code }}">{{ row.set.name_ru or row.set.name_en }}</a>
+                    {% else %}
+                        <span class="muted">—</span>
+                    {% endif %}
+                </td>
+                <td><b style="color:#e6c367">{{ row.power }}</b></td>
+                <td>
+                    {% if row.empty %}
+                        <span style="color:#e0655f">
+                            {% for slot in row.empty %}{{ slot|ru }}{% if not loop.last %}, {% endif %}{% endfor %}
+                        </span>
+                    {% else %}
+                        ✅
+                    {% endif %}
+                </td>
+                <td>
+                    {% if row.mismatch %}
+                        <span style="color:#bd96e0">
+                            {% for slot in row.mismatch %}{{ slot|ru }}{% if not loop.last %}, {% endif %}{% endfor %}
+                        </span>
+                    {% else %}
+                        <span class="muted">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="6" class="muted">Отряд пуст</td></tr>
+        {% endfor %}
+    </table>
+
+    <p class="muted">
+        Сила — сумма силы надетых предметов (макс. значения).
+        «Чужие предметы» — вещи другого класса: в игре они дадут штраф.
+    </p>
+{% endblock %}
