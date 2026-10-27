@@ -1299,6 +1299,8 @@ def sync_keepers() -> int:
 
     from sqlalchemy import text as sql_text
 
+    from hcenc.db.engine import engine
+
     database.initialize()
 
     ru = mgbot_client.fetch("ru", "keepers.json")
