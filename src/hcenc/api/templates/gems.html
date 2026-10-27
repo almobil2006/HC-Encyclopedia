@@ -16,12 +16,13 @@
             {% for color_name in gem_colors %}<th>{{ color_name }}</th>{% endfor %}
         </tr>
         {% for type_name in gem_types %}
+            {% set ti = loop.index0 %}
             <tr>
                 <td><b>{{ type_name }}</b></td>
                 {% for color_name in gem_colors %}
                     <td class="muted">
-                        {{ counter.inserted.get((loop.parent.loop.index0, loop.index0, "max"), 0) }} /
-                        {{ counter.inserted.get((loop.parent.loop.index0, loop.index0, "std"), 0) }}
+                        {{ counter.inserted.get((ti, loop.index0, "max"), 0) }} /
+                        {{ counter.inserted.get((ti, loop.index0, "std"), 0) }}
                     </td>
                 {% endfor %}
             </tr>
@@ -37,17 +38,18 @@
                 {% for color_name in gem_colors %}<th>{{ color_name }}</th>{% endfor %}
             </tr>
             {% for type_name in gem_types %}
+                {% set ti = loop.index0 %}
                 <tr>
                     <td><b>{{ type_name }}</b></td>
                     {% for color_name in gem_colors %}
                         <td>
                             <input type="number" min="0" style="width:52px"
-                                   name="stock_{{ loop.parent.loop.index0 }}_{{ loop.index0 }}_max"
-                                   value="{{ counter.stock.get((loop.parent.loop.index0, loop.index0, 'max'), 0) }}">
+                                   name="stock_{{ ti }}_{{ loop.index0 }}_max"
+                                   value="{{ counter.stock.get((ti, loop.index0, 'max'), 0) }}">
                             /
                             <input type="number" min="0" style="width:52px"
-                                   name="stock_{{ loop.parent.loop.index0 }}_{{ loop.index0 }}_std"
-                                   value="{{ counter.stock.get((loop.parent.loop.index0, loop.index0, 'std'), 0) }}">
+                                   name="stock_{{ ti }}_{{ loop.index0 }}_std"
+                                   value="{{ counter.stock.get((ti, loop.index0, 'std'), 0) }}">
                         </td>
                     {% endfor %}
                 </tr>
